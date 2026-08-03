@@ -43,10 +43,10 @@
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type local:HardwareInventoryViewItem}" ItemsSource="{Binding Children}">
                             <StackPanel Margin="0,4">
-                                <local:SelectableText FontWeight="SemiBold" Text="{Binding DisplayName}" TextWrapping="Wrap" />
+                                <local:SelectableText FontWeight="SemiBold" Text="{Binding DisplayName, Mode=OneWay}" TextWrapping="Wrap" />
                                 <local:SelectableText FontSize="12"
                                            Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
-                                           Text="{Binding Summary}"
+                                           Text="{Binding Summary, Mode=OneWay}"
                                            TextWrapping="Wrap" />
                             </StackPanel>
                         </HierarchicalDataTemplate>
