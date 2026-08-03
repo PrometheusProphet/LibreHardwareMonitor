@@ -39,6 +39,41 @@ public sealed class SessionDiagnosticTimelineTests
             Entry(DateTimeOffset.UnixEpoch, DiagnosticOutcome.Succeeded, DiagnosticConclusion.ConfirmedRootCause)));
     }
 
+    [TestMethod]
+    public void Record_AllocatesUniqueStableKeysWithoutDerivingThemFromEntryContent()
+    {
+        SessionDiagnosticTimeline timeline = new(capacity: 3);
+        DiagnosticTimelineEntry first = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(1)));
+        DiagnosticTimelineEntry second = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(3)) with
+        {
+            Condition = first.Condition,
+            Action = first.Action,
+            RelatedDevice = new DiagnosticDeviceReference("Synthetic device", "Synthetic explicit reference", DateTimeOffset.UnixEpoch)
+        });
+        timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(2)));
+
+        Assert.AreNotEqual(LocalDiagnosticEvidenceObservationKey.Unknown, first.ObservationKey);
+        Assert.AreNotEqual(LocalDiagnosticEvidenceObservationKey.Unknown, second.ObservationKey);
+        Assert.AreNotEqual(first.ObservationKey, second.ObservationKey);
+        Assert.AreSame(second, timeline.Entries[0]);
+        Assert.AreEqual(second.ObservationKey, timeline.Entries[0].ObservationKey);
+    }
+
+    [TestMethod]
+    public void Record_EvictsOldKeyAndMakesItsSlotAvailableAgain()
+    {
+        SessionDiagnosticTimeline timeline = new(capacity: 2);
+        DiagnosticTimelineEntry first = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(1)));
+        DiagnosticTimelineEntry second = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(3)));
+        timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(2)));
+
+        Assert.IsFalse(timeline.IsRetainedObservationKey(first.ObservationKey));
+        Assert.IsTrue(timeline.IsRetainedObservationKey(second.ObservationKey));
+
+        DiagnosticTimelineEntry replacement = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(4)));
+        Assert.AreEqual(first.ObservationKey, replacement.ObservationKey);
+    }
+
     private static DiagnosticTimelineEntry Entry(
         DateTimeOffset observedAt,
         DiagnosticOutcome outcome = DiagnosticOutcome.Inconclusive,

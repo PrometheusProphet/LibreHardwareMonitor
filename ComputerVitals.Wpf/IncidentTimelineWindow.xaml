@@ -64,6 +64,27 @@
                         <Button Margin="0,16,0,0" Padding="16,6" HorizontalAlignment="Left" Click="Record_Click" Content="Record observation" />
 
                         <Separator Margin="0,24,0,20" />
+                        <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Record typed source claim for selected observation" />
+                        <local:SelectableText x:Name="ClaimSelectionText"
+                                              Margin="0,6,0,0"
+                                              Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                                              Text="Select a retained observation before recording a typed claim."
+                                              TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,16,0,4" Text="Source" />
+                        <ComboBox x:Name="ClaimSourceComboBox" SelectionChanged="ClaimSourceComboBox_SelectionChanged" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Disposition" />
+                        <ComboBox x:Name="ClaimDispositionComboBox" SelectionChanged="ClaimInput_SelectionChanged" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
+                        <ComboBox x:Name="ClaimObservationStageComboBox" SelectionChanged="ClaimInput_SelectionChanged" />
+                        <Button x:Name="RecordTypedClaimButton"
+                                Margin="0,16,0,0"
+                                Padding="16,6"
+                                HorizontalAlignment="Left"
+                                Click="RecordTypedClaim_Click"
+                                Content="Record typed claim"
+                                IsEnabled="False" />
+
+                        <Separator Margin="0,24,0,20" />
                         <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Controlled test assistant" />
                         <local:SelectableText Margin="0,6,0,0"
                                               Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
@@ -156,6 +177,9 @@
                                 <local:SelectableText x:Name="RecommendationEvidenceText" Margin="0,10,0,0" TextWrapping="Wrap" />
                                 <local:SelectableText x:Name="RecommendationUnknownsText" Margin="0,10,0,0" TextWrapping="Wrap" />
                                 <local:SelectableText x:Name="RecommendationNextText" Margin="0,10,0,0" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <Separator Margin="0,18,0,16" />
+                                <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Session source reconciliation" />
+                                <local:SelectableText x:Name="SourceReconciliationText" Margin="0,10,0,0" TextWrapping="Wrap" />
                             </StackPanel>
                         </ScrollViewer>
                     </Border>

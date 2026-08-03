@@ -12,4 +12,5 @@ public sealed record DiagnosticTimelineEntry(
     DiagnosticConclusion Conclusion,
     string? Note = null,
     DiagnosticObservationStage ObservationStage = DiagnosticObservationStage.Unknown,
-    DiagnosticDeviceReference? RelatedDevice = null);
+    DiagnosticDeviceReference? RelatedDevice = null,
+    LocalDiagnosticEvidenceObservationKey ObservationKey = LocalDiagnosticEvidenceObservationKey.Unknown);

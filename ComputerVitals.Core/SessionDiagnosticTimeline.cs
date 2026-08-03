@@ -6,12 +6,17 @@ namespace ComputerVitals.Core;
 public sealed class SessionDiagnosticTimeline
 {
     private const int MaximumTextLength = 500;
+    public const int MaximumCapacity = 30;
+    private static readonly LocalDiagnosticEvidenceObservationKey[] ObservationKeys = Enum
+        .GetValues<LocalDiagnosticEvidenceObservationKey>()
+        .Where(key => key != LocalDiagnosticEvidenceObservationKey.Unknown)
+        .ToArray();
     private readonly int _capacity;
     private readonly List<DiagnosticTimelineEntry> _entries = [];
 
     public SessionDiagnosticTimeline(int capacity)
     {
-        if (capacity <= 0)
+        if (capacity <= 0 || capacity > MaximumCapacity)
             throw new ArgumentOutOfRangeException(nameof(capacity));
 
         _capacity = capacity;
@@ -19,9 +24,11 @@ public sealed class SessionDiagnosticTimeline
 
     public IReadOnlyList<DiagnosticTimelineEntry> Entries => _entries;
 
-    public void Record(DiagnosticTimelineEntry entry)
+    public DiagnosticTimelineEntry Record(DiagnosticTimelineEntry entry)
     {
         ArgumentNullException.ThrowIfNull(entry);
+        if (entry.ObservationKey != LocalDiagnosticEvidenceObservationKey.Unknown)
+            throw new ArgumentException("The session timeline allocates observation keys for retained entries.", nameof(entry));
         ValidateText(entry.Condition, nameof(entry.Condition));
         ValidateText(entry.Action, nameof(entry.Action));
         ValidateText(entry.EvidenceSource, nameof(entry.EvidenceSource));
@@ -47,11 +54,31 @@ public sealed class SessionDiagnosticTimeline
                 nameof(entry));
         }
 
-        _entries.Add(entry);
+        DiagnosticTimelineEntry retainedEntry = entry with { ObservationKey = AllocateObservationKey() };
+        _entries.Add(retainedEntry);
         _entries.Sort((left, right) => right.ObservedAt.CompareTo(left.ObservedAt));
         while (_entries.Count > _capacity)
             _entries.RemoveAt(_entries.Count - 1);
+        return retainedEntry;
     }
+
+    public bool IsRetainedObservationKey(LocalDiagnosticEvidenceObservationKey key) =>
+        key != LocalDiagnosticEvidenceObservationKey.Unknown &&
+        _entries.Any(entry => entry.ObservationKey == key);
+
+    public bool TryGetRetainedEntry(
+        LocalDiagnosticEvidenceObservationKey key,
+        out DiagnosticTimelineEntry? entry)
+    {
+        entry = _entries.FirstOrDefault(candidate => candidate.ObservationKey == key);
+        return entry is not null;
+    }
+
+    private LocalDiagnosticEvidenceObservationKey AllocateObservationKey() =>
+        ObservationKeys.FirstOrDefault(key => !IsRetainedObservationKey(key)) is LocalDiagnosticEvidenceObservationKey key &&
+        key != LocalDiagnosticEvidenceObservationKey.Unknown
+            ? key
+            : throw new InvalidOperationException("No session observation key is available.");
 
     private static void ValidateText(string value, string parameterName)
     {

@@ -56,9 +56,9 @@ public sealed class ControlledTestAssistant
             plan.ObservationStage,
             plan.RelatedDevice);
 
-        _timeline.Record(entry);
+        DiagnosticTimelineEntry retainedEntry = _timeline.Record(entry);
         CurrentPlan = null;
-        return entry;
+        return retainedEntry;
     }
 
     public void Cancel() => CurrentPlan = null;
