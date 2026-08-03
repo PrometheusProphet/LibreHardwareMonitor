@@ -173,4 +173,5 @@ and CPU temperature access with PawnIO installed remain targeted hardware
 evidence gaps. The active intervention slice is session-only: it records
 concise local conditions, actions, outcomes, evidence sources, and qualified
 conclusions, then discards them when closed. It cannot record a confirmed root
-cause claim.
+cause claim. When that exact Dell dock is recognized, its reported subtree is
+the initial inventory view; the full Windows tree remains one click away.
