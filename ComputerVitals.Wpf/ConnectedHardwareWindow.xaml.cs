@@ -33,10 +33,22 @@ public partial class ConnectedHardwareWindow : Window
             HardwareInventorySnapshot snapshot = await _inventoryProbe.ReadAsync();
             IReadOnlyList<HardwareInventoryNode> roots = HardwareInventoryTreeBuilder.Build(snapshot.Items);
             DeviceTree.ItemsSource = roots.Select(HardwareInventoryViewItem.FromNode).ToArray();
-            DetailsTitle.Text = "Select a component";
-            DetailsRole.Text = string.Empty;
-            DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
-            SetOfficialSupportGuidance(null);
+            HardwareInventoryItem? supportMatchedItem = snapshot.Items.FirstOrDefault(item =>
+                OfficialSupportGuidanceResolver.Resolve(item) is not null);
+            if (supportMatchedItem is null)
+            {
+                DetailsTitle.Text = "Select a component";
+                DetailsRole.Text = string.Empty;
+                DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
+                SetOfficialSupportGuidance(null);
+            }
+            else
+            {
+                DetailsTitle.Text = $"Recognized device: {supportMatchedItem.DisplayName}";
+                DetailsRole.Text = HardwareRoleExplainer.Explain(supportMatchedItem);
+                DetailsText.Text = "A reliable local match has official support guidance. The full Windows device tree remains available for inspection.";
+                SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(supportMatchedItem));
+            }
             StatusText.Text = $"Read-only inventory refreshed: {snapshot.ObservedAt.ToLocalTime():T}. {snapshot.Items.Count} Windows-reported components.";
             EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
         }
