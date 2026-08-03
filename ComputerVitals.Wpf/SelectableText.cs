@@ -10,6 +10,11 @@ namespace ComputerVitals.Wpf;
 
 public sealed class SelectableText : TextBox
 {
+    static SelectableText()
+    {
+        TextProperty.OverrideMetadata(typeof(SelectableText), new FrameworkPropertyMetadata(string.Empty));
+    }
+
     public SelectableText()
     {
         IsReadOnly = true;
@@ -20,6 +25,7 @@ public sealed class SelectableText : TextBox
         HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
         VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
         Background = Brushes.Transparent;
+        Foreground = Brushes.White;
         BorderBrush = Brushes.Transparent;
         BorderThickness = new Thickness(0);
         Padding = new Thickness(0);
