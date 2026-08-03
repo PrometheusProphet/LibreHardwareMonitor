@@ -14,6 +14,7 @@ public partial class ConnectedHardwareWindow : Window
     private readonly IHardwareInventoryProbe _inventoryProbe = new WindowsDeviceInventoryProvider();
     private IReadOnlyList<HardwareInventoryViewItem> _allDevices = [];
     private HardwareInventoryViewItem? _recognizedDevice;
+    private HardwareInventoryItem? _recognizedInventoryItem;
     private bool _refreshing;
 
     public ConnectedHardwareWindow()
@@ -35,7 +36,7 @@ public partial class ConnectedHardwareWindow : Window
     private void FocusRecognizedDevice_Click(object sender, RoutedEventArgs e) => ShowRecognizedDevice();
 
     private void IncidentTimeline_Click(object sender, RoutedEventArgs e) =>
-        new IncidentTimelineWindow { Owner = this }.Show();
+        new IncidentTimelineWindow(_recognizedInventoryItem) { Owner = this }.Show();
 
     private async Task RefreshAsync()
     {
@@ -53,6 +54,7 @@ public partial class ConnectedHardwareWindow : Window
             if (supportMatchedItem is null)
             {
                 _recognizedDevice = null;
+                _recognizedInventoryItem = null;
                 DeviceTree.ItemsSource = _allDevices;
                 ShowAllDevicesButton.Visibility = Visibility.Collapsed;
                 FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
@@ -63,6 +65,7 @@ public partial class ConnectedHardwareWindow : Window
             }
             else
             {
+                _recognizedInventoryItem = supportMatchedItem;
                 HardwareInventoryNode? recognizedNode = HardwareInventoryTreeSearch.FindByInstanceId(roots, supportMatchedItem.InstanceId);
                 _recognizedDevice = recognizedNode is null ? null : HardwareInventoryViewItem.FromNode(recognizedNode);
                 if (_recognizedDevice is null)
@@ -91,6 +94,7 @@ public partial class ConnectedHardwareWindow : Window
             DeviceTree.ItemsSource = null;
             _allDevices = [];
             _recognizedDevice = null;
+            _recognizedInventoryItem = null;
             ShowAllDevicesButton.Visibility = Visibility.Collapsed;
             FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
             DetailsTitle.Text = "Inventory unavailable";

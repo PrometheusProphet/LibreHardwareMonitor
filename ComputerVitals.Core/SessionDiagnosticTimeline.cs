@@ -27,6 +27,11 @@ public sealed class SessionDiagnosticTimeline
         ValidateText(entry.EvidenceSource, nameof(entry.EvidenceSource));
         if (entry.Note is not null && entry.Note.Length > MaximumTextLength)
             throw new ArgumentOutOfRangeException(nameof(entry.Note), $"Entries are limited to {MaximumTextLength} characters per field.");
+        if (entry.RelatedDevice is not null)
+        {
+            ValidateText(entry.RelatedDevice.DisplayName, nameof(entry.RelatedDevice.DisplayName));
+            ValidateText(entry.RelatedDevice.MatchEvidence, nameof(entry.RelatedDevice.MatchEvidence));
+        }
 
         if (entry.Conclusion == DiagnosticConclusion.ConfirmedRootCause)
         {

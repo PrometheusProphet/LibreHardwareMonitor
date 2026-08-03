@@ -46,6 +46,17 @@
                         <ComboBox x:Name="OutcomeComboBox" />
                         <local:SelectableText Margin="0,12,0,4" Text="Conclusion level" />
                         <ComboBox x:Name="ConclusionComboBox" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
+                        <ComboBox x:Name="ObservationStageComboBox" />
+                        <CheckBox x:Name="RelatedDeviceCheckBox"
+                                  Margin="0,14,0,0"
+                                  Content="Link the recognized local device to this observation"
+                                  Visibility="Collapsed" />
+                        <local:SelectableText x:Name="RelatedDeviceText"
+                                              Margin="0,4,0,0"
+                                              Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                                              TextWrapping="Wrap"
+                                              Visibility="Collapsed" />
                         <local:SelectableText Margin="0,12,0,4" Text="Evidence source" />
                         <TextBox x:Name="EvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap" />
                         <local:SelectableText Margin="0,12,0,4" Text="Concise note (optional)" />

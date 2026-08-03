@@ -174,4 +174,7 @@ evidence gaps. The active intervention slice is session-only: it records
 concise local conditions, actions, outcomes, evidence sources, and qualified
 conclusions, then discards them when closed. It cannot record a confirmed root
 cause claim. When that exact Dell dock is recognized, its reported subtree is
-the initial inventory view; the full Windows tree remains one click away.
+the initial inventory view; the full Windows tree remains one click away. A
+timeline observation may explicitly link that recognized device and identify a
+pre-Windows stage, but the record never infers a relationship from device
+presence or treats Windows logs as decisive for POST-stage failures.

@@ -10,4 +10,6 @@ public sealed record DiagnosticTimelineEntry(
     DiagnosticOutcome Outcome,
     string EvidenceSource,
     DiagnosticConclusion Conclusion,
-    string? Note = null);
+    string? Note = null,
+    DiagnosticObservationStage ObservationStage = DiagnosticObservationStage.Unknown,
+    DiagnosticDeviceReference? RelatedDevice = null);
