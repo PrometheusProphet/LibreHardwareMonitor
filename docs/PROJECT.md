@@ -183,7 +183,8 @@ automatically merely to close that gap.
 
 ### Phase 2 — connected hardware investigation
 
-**Status: first useful slice complete; usability and coverage are next.**
+**Status: selected-parent navigation complete; broader coverage remains
+evidence-gated.**
 
 Turn the local Windows device tree into an understandable diagnostic surface:
 
@@ -195,16 +196,16 @@ Turn the local Windows device tree into an understandable diagnostic surface:
 - provide official support or catalog guidance only for an exact, reliable
   manufacturer-and-model match.
 
-The next bounded implementation here is reusable local navigation: a compact
-filter or focus mechanism for a selected parent device, with a clear return to
-the whole inventory. Broaden exact-match mappings only one vendor/model at a
-time, with a source, ownership, and update strategy recorded beside each
-mapping. Do not represent the current inventory as a universal driver or
-firmware database.
+Reusable local navigation now lets any selected parent with reported children
+show its complete subtree, with one action restoring the unchanged full
+inventory. Broaden exact-match mappings only one vendor/model at a time, with a
+source, ownership, and update strategy recorded beside each mapping. Do not
+represent the current inventory as a universal driver or firmware database.
 
 ### Phase 3 — incident evidence and controlled troubleshooting
 
-**Status: session-only foundation complete; retention decision deferred.**
+**Status: session-only controlled-test assistant complete; retention decision
+deferred.**
 
 Make an incident understandable across conditions, interventions, outcomes,
 and evidence:
@@ -218,29 +219,37 @@ and evidence:
 - distinguish potentially relevant, observed remediation, and confirmed root
   cause without inferring the last category.
 
-The next step is a controlled-test assistant that proposes one variable at a
-time and records what changed, while leaving the user in control of every
-restart, cable change, or vendor tool. Before persisting incidents across
+The controlled-test assistant now prepares exactly one variable with its
+baseline, constant conditions, user-performed action, observation stage, and
+optional explicit device link, then records the evidence and result in the
+existing bounded session timeline. It rejects a multi-variable attestation,
+performs no restart, cable change, hardware control, or vendor-tool action, and
+cannot record a confirmed-root-cause claim. Before persisting incidents across
 sessions, make a separate user decision on retention duration, location,
 deletion, and export; session-only data remains the default until then.
 
 ### Phase 4 — evidence-gated update intelligence
 
-**Status: discovery and policy work only.**
+**Status: WD19S evidence spike complete; update checker is a no-go on current
+evidence.**
 
 The product may point an exact match to a manufacturer’s live Drivers &
-Downloads page, but it currently reports update availability as unknown. The
-next work is a vendor-specific evidence spike, beginning with the WD19S:
+Downloads page, but it reports update availability as unknown. The dated
+[WD19S vendor-evidence spike](research/2026-08-03-wd19s-vendor-evidence-spike.md)
+found useful official Dell metadata surfaces but did not establish either
+permission for the proposed automated reuse or a reliable, least-privilege
+local source of comparable dock component versions. The following evidence is
+still required before an update checker can be proposed:
 
-- establish whether Dell provides a stable, permitted catalog, API, or signed
-  metadata source suitable for local read-only lookup;
-- establish a reliable local component identity and firmware-version source
-  for each package component, not just the dock display name;
-- define version normalization, operating-system and architecture
-  applicability, prerequisites, importance, release notes, supersedence, and
-  source freshness; and
-- prove presentation with synthetic current, outdated, unknown, contradictory,
-  and failed fixtures plus a named hardware observation.
+- a stable catalog, API, or signed metadata source with terms that permit the
+  intended local read-only use;
+- reliable local component identity and firmware-version evidence for each
+  compared package component, not just the dock display name;
+- licensed or synthetic fixtures covering applicability, version
+  normalization, prerequisites, release notes, supersedence, freshness,
+  conflicts, and failures; and
+- a named hardware observation that reports identity and version capability
+  without committing raw identifiers or personal logs.
 
 Only then can a product state such as **update available** be implemented. A
 vendor's own importance label is not yet a Computer Vitals recommendation; a
@@ -294,16 +303,22 @@ sync, telemetry, and cloud features are not default follow-ons.
 
 ### Recommended immediate sequence
 
-1. Complete the remaining Phase 1 hardware observations without adding a
-   driver automatically.
-2. Add the Phase 2 selected-parent navigation refinement, keeping the full
-   Windows tree visible and reversible.
-3. Build the Phase 3 one-variable-at-a-time controlled-test assistant while
-   keeping incident entries session-only.
-4. Run the Phase 4 Dell WD19S evidence spike before writing any update-
-   availability checker.
-5. Pause for the explicit Phase 6 release and data-retention decisions before
-   packaging or retaining diagnostics beyond a session.
+The bounded immediate implementation sequence is complete:
+
+1. Synthetic notification-content evidence is in place. Real Windows
+   notification delivery and CPU access with an intentionally approved
+   low-level capability remain unobserved; PawnIO was not installed or
+   elevated.
+2. Reusable selected-parent inventory navigation is delivered, preserving a
+   one-action return to the unchanged full Windows tree.
+3. The one-variable-at-a-time controlled-test assistant is delivered with
+   session-only incident data and user-performed actions.
+4. The WD19S vendor-evidence spike is complete with a no-go recommendation for
+   an update checker; update availability remains unknown.
+
+Pause for the explicit Phase 6 release and data-retention decisions before
+packaging or retaining diagnostics beyond a session. Completion of this
+sequence does not activate a later roadmap phase.
 
 ## Deferred decisions
 
