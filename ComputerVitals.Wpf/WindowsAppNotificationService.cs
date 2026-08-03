@@ -34,10 +34,11 @@ public sealed class WindowsAppNotificationService : IDisposable
         if (!_registered)
             return;
 
+        TemperatureAlertNotificationContent content = TemperatureAlertNotificationContent.FromAlert(alert);
         AppNotification notification = new AppNotificationBuilder()
             .AddArgument("action", "show-temperature")
-            .AddText($"{alert.DeviceKind} temperature remained above your threshold")
-            .AddText($"{alert.DeviceName} · {alert.SensorName ?? "temperature source"}: {alert.ValueCelsius:F1} °C (threshold {alert.ThresholdCelsius:F1} °C for {alert.Persistence.TotalSeconds:F0} seconds)")
+            .AddText(content.Title)
+            .AddText(content.Body)
             .BuildNotification();
         AppNotificationManager.Default.Show(notification);
     }
