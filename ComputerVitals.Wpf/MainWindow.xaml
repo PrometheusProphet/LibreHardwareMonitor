@@ -6,9 +6,9 @@
         Title="Computer Vitals prototype"
         Icon="Assets/computer-vitals.ico"
         Width="860"
-        Height="650"
+        Height="680"
         MinWidth="720"
-        MinHeight="620"
+        MinHeight="660"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="28">
         <Grid.RowDefinitions>
