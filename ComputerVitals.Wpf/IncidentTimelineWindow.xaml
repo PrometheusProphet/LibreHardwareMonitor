@@ -62,6 +62,55 @@
                         <local:SelectableText Margin="0,12,0,4" Text="Concise note (optional)" />
                         <TextBox x:Name="NoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
                         <Button Margin="0,16,0,0" Padding="16,6" HorizontalAlignment="Left" Click="Record_Click" Content="Record observation" />
+
+                        <Separator Margin="0,24,0,20" />
+                        <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Controlled test assistant" />
+                        <local:SelectableText Margin="0,6,0,0"
+                                              Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                                              Text="Prepare exactly one variable. Computer Vitals records the plan and result but never performs the action."
+                                              TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,16,0,4" Text="One variable" />
+                        <TextBox x:Name="ControlledVariableTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Baseline condition" />
+                        <TextBox x:Name="ControlledBaselineTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Conditions held constant" />
+                        <TextBox x:Name="ControlledConstantsTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Action you will perform" />
+                        <TextBox x:Name="ControlledActionTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
+                        <ComboBox x:Name="ControlledObservationStageComboBox" />
+                        <CheckBox x:Name="ControlledRelatedDeviceCheckBox"
+                                  Margin="0,14,0,0"
+                                  Content="Explicitly link the recognized local device"
+                                  Visibility="Collapsed" />
+                        <CheckBox x:Name="OnlyVariableWillChangeCheckBox" Margin="0,14,0,0">
+                            <TextBlock Text="I will intentionally change only the one variable above."
+                                       TextWrapping="Wrap" />
+                        </CheckBox>
+                        <Button x:Name="PrepareControlledTestButton"
+                                Margin="0,16,0,0"
+                                Padding="16,6"
+                                HorizontalAlignment="Left"
+                                Click="PrepareControlledTest_Click"
+                                Content="Prepare controlled test" />
+                        <local:SelectableText x:Name="CurrentControlledPlanText"
+                                              Margin="0,10,0,0"
+                                              Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                                              Text="No controlled test is prepared."
+                                              TextWrapping="Wrap" />
+
+                        <StackPanel x:Name="ControlledResultPanel" IsEnabled="False">
+                            <local:SelectableText Margin="0,16,0,4" Text="Observed result" />
+                            <ComboBox x:Name="ControlledOutcomeComboBox" />
+                            <local:SelectableText Margin="0,12,0,4" Text="Evidence source" />
+                            <TextBox x:Name="ControlledEvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap" />
+                            <local:SelectableText Margin="0,12,0,4" Text="Result note (optional)" />
+                            <TextBox x:Name="ControlledResultNoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                            <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
+                                <Button Padding="16,6" Click="RecordControlledResult_Click" Content="Record result" />
+                                <Button Margin="8,0,0,0" Padding="16,6" Click="CancelControlledTest_Click" Content="Cancel test" />
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
