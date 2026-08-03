@@ -56,6 +56,9 @@ public static class LocalDiagnosticEvidenceReconciliationEngine
 
     private static void Validate(LocalDiagnosticEvidenceClaim claim)
     {
+        if (!Enum.IsDefined(claim.ObservationKey))
+            throw new ArgumentException("The observation key must be a bounded session observation value.", nameof(claim));
+
         bool valid = claim.SourceKind switch
         {
             LocalDiagnosticEvidenceSourceKind.DeviceManager => claim.Disposition is
@@ -84,9 +87,11 @@ public static class LocalDiagnosticEvidenceReconciliationEngine
         IReadOnlyList<LocalDiagnosticEvidenceClaim> claims)
     {
         List<LocalDiagnosticEvidenceConflict> conflicts = [];
-        foreach (IGrouping<string, LocalDiagnosticEvidenceClaim> group in claims
-                     .Where(claim => claim.RelatedDevice is not null)
-                     .GroupBy(claim => DeviceKey(claim.RelatedDevice!)))
+        foreach (IGrouping<ConflictScope, LocalDiagnosticEvidenceClaim> group in claims
+                     .Where(claim =>
+                         claim.RelatedDevice is not null &&
+                         NormalizeObservationKey(claim.ObservationKey) != LocalDiagnosticEvidenceObservationKey.Unknown)
+                     .GroupBy(claim => ConflictScopeKey(claim)))
         {
             LocalDiagnosticEvidenceClaim[] operationClaims = group
                 .Where(claim => claim.Disposition is LocalDiagnosticEvidenceDisposition.Succeeded or LocalDiagnosticEvidenceDisposition.Failed)
@@ -112,6 +117,9 @@ public static class LocalDiagnosticEvidenceReconciliationEngine
             limitations.Add("No claims were supplied; evidence remains unknown.");
         if (considerations.Any(consideration => consideration.Claim.Disposition == LocalDiagnosticEvidenceDisposition.Unknown))
             limitations.Add("Unknown claims remain explicit and are not resolved by another source.");
+        if (considerations.Any(consideration =>
+                NormalizeObservationKey(consideration.Claim.ObservationKey) == LocalDiagnosticEvidenceObservationKey.Unknown))
+            limitations.Add("An unknown observation key does not establish that claims describe the same condition.");
         if (considerations.Any(consideration => consideration.Scope == LocalDiagnosticEvidenceClaimScope.ExcludedIdentityMismatch))
             limitations.Add("Claims with a mismatched explicit device identity were excluded; presence or selection is not used to infer a relationship.");
         if (considerations.Any(consideration =>
@@ -140,6 +148,18 @@ public static class LocalDiagnosticEvidenceReconciliationEngine
         string.Equals(first.DisplayName, second.DisplayName, StringComparison.OrdinalIgnoreCase) &&
         first.ObservedAt == second.ObservedAt;
 
-    private static string DeviceKey(DiagnosticDeviceReference device) =>
-        $"{device.DisplayName}\u001f{device.ObservedAt:O}";
+    private static ConflictScope ConflictScopeKey(LocalDiagnosticEvidenceClaim claim) =>
+        new(
+            NormalizeObservationKey(claim.ObservationKey),
+            claim.RelatedDevice!.DisplayName.ToUpperInvariant(),
+            claim.RelatedDevice.ObservedAt);
+
+    private static LocalDiagnosticEvidenceObservationKey NormalizeObservationKey(
+        LocalDiagnosticEvidenceObservationKey key) =>
+        Enum.IsDefined(key) ? key : LocalDiagnosticEvidenceObservationKey.Unknown;
+
+    private readonly record struct ConflictScope(
+        LocalDiagnosticEvidenceObservationKey ObservationKey,
+        string DeviceDisplayName,
+        DateTimeOffset DeviceObservedAt);
 }

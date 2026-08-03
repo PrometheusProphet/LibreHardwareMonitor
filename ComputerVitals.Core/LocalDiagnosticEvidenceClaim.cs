@@ -4,6 +4,7 @@
 namespace ComputerVitals.Core;
 
 public sealed record LocalDiagnosticEvidenceClaim(
+    LocalDiagnosticEvidenceObservationKey ObservationKey,
     LocalDiagnosticEvidenceSourceKind SourceKind,
     LocalDiagnosticEvidenceDisposition Disposition,
     DateTimeOffset ObservedAt,

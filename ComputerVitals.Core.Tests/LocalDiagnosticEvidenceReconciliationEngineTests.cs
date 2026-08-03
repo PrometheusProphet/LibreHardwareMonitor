@@ -62,6 +62,80 @@ public sealed class LocalDiagnosticEvidenceReconciliationEngineTests
     }
 
     [TestMethod]
+    public void Reconcile_IncompatibleClaimsForDifferentConditionsOnExactDevice_DoNotConflict()
+    {
+        DiagnosticDeviceReference device = Device("Synthetic dock");
+        LocalDiagnosticEvidenceClaim failed = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerSummary,
+            LocalDiagnosticEvidenceDisposition.Failed,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            condition: LocalDiagnosticEvidenceObservationKey.Observation1);
+        LocalDiagnosticEvidenceClaim succeeded = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerDetail,
+            LocalDiagnosticEvidenceDisposition.Succeeded,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            Now.AddMinutes(1),
+            LocalDiagnosticEvidenceObservationKey.Observation2);
+
+        LocalDiagnosticEvidenceReconciliationResult result = Reconcile([failed, succeeded], device);
+
+        Assert.IsEmpty(result.UnresolvedConflicts);
+        DoesNotProvideActionOrVerdict(result);
+    }
+
+    [TestMethod]
+    public void Reconcile_IncompatibleClaimsForSameNormalizedConditionOnExactDevice_Conflict()
+    {
+        DiagnosticDeviceReference device = Device("Synthetic dock");
+        LocalDiagnosticEvidenceClaim failed = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerSummary,
+            LocalDiagnosticEvidenceDisposition.Failed,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            condition: LocalDiagnosticEvidenceObservationKey.Observation3);
+        LocalDiagnosticEvidenceClaim succeeded = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerDetail,
+            LocalDiagnosticEvidenceDisposition.Succeeded,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            Now.AddMinutes(1),
+            LocalDiagnosticEvidenceObservationKey.Observation3);
+
+        LocalDiagnosticEvidenceReconciliationResult result = Reconcile([failed, succeeded], device);
+
+        Assert.HasCount(1, result.UnresolvedConflicts);
+        CollectionAssert.AreEquivalent(
+            new[] { failed, succeeded },
+            result.UnresolvedConflicts.Single().Claims.ToArray());
+    }
+
+    [TestMethod]
+    public void Reconcile_UnknownConditionDoesNotEstablishAConflictScope()
+    {
+        DiagnosticDeviceReference device = Device("Synthetic dock");
+        LocalDiagnosticEvidenceClaim failed = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerSummary,
+            LocalDiagnosticEvidenceDisposition.Failed,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            condition: LocalDiagnosticEvidenceObservationKey.Unknown);
+        LocalDiagnosticEvidenceClaim succeeded = Claim(
+            LocalDiagnosticEvidenceSourceKind.InstallerDetail,
+            LocalDiagnosticEvidenceDisposition.Succeeded,
+            DiagnosticObservationStage.WindowsRunning,
+            device,
+            Now.AddMinutes(1),
+            LocalDiagnosticEvidenceObservationKey.Unknown);
+
+        LocalDiagnosticEvidenceReconciliationResult result = Reconcile([failed, succeeded], device);
+
+        Assert.IsEmpty(result.UnresolvedConflicts);
+        StringAssert.Contains(Combined(result), "unknown observation key does not establish");
+    }
+
+    [TestMethod]
     public void Reconcile_DeviceManagerProblemPair_IsUnresolvedAndNoProblemIsNotHealthy()
     {
         DiagnosticDeviceReference device = Device("Synthetic dock");
@@ -205,8 +279,9 @@ public sealed class LocalDiagnosticEvidenceReconciliationEngineTests
         LocalDiagnosticEvidenceDisposition disposition,
         DiagnosticObservationStage stage,
         DiagnosticDeviceReference? device = null,
-        DateTimeOffset? observedAt = null) =>
-        new(source, disposition, observedAt ?? Now, stage, device);
+        DateTimeOffset? observedAt = null,
+        LocalDiagnosticEvidenceObservationKey condition = LocalDiagnosticEvidenceObservationKey.Observation1) =>
+        new(condition, source, disposition, observedAt ?? Now, stage, device);
 
     private static DiagnosticDeviceReference Device(string displayName) =>
         new(displayName, "Synthetic explicit device reference", Now);
