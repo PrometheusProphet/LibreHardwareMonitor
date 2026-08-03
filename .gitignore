@@ -2,6 +2,7 @@
 *.suo
 [Bb]in/
 [Oo]bj/
+artifacts/
 .idea/
 .vs/
 .vscode/
