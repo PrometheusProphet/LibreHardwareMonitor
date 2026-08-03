@@ -1,0 +1,105 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<Window x:Class="ComputerVitals.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Computer Vitals prototype"
+        Icon="Assets/computer-vitals.ico"
+        Width="860"
+        Height="590"
+        MinWidth="720"
+        MinHeight="520"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="18" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock FontSize="28" FontWeight="SemiBold" Text="Temperature health" />
+            <TextBlock Margin="0,6,0,0"
+                       Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                       Text="Read-only CPU and GPU observations. Missing or failed readings stay visible." />
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="CpuCard" Grid.Column="0" Padding="20" BorderThickness="1" CornerRadius="12">
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Text="CPU" />
+                        <TextBlock x:Name="CpuStateText" DockPanel.Dock="Right" TextAlignment="Right" />
+                    </DockPanel>
+                    <TextBlock x:Name="CpuValueText" Margin="0,20,0,0" FontSize="40" FontWeight="SemiBold" Text="—" />
+                    <TextBlock x:Name="CpuNameText" Margin="0,10,0,0" FontWeight="SemiBold" Text="Discovering…" TextWrapping="Wrap" />
+                    <TextBlock x:Name="CpuSourceText" Margin="0,6,0,0" Text="Source: —" TextWrapping="Wrap" />
+                    <TextBlock x:Name="CpuRangeText" Margin="0,6,0,0" Text="Session range: —" />
+                    <TextBlock x:Name="CpuFreshnessText" Margin="0,6,0,0" Text="Freshness: —" />
+                    <TextBlock x:Name="CpuReasonText" Margin="0,14,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="GpuCard" Grid.Column="2" Padding="20" BorderThickness="1" CornerRadius="12">
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Text="GPU" />
+                        <TextBlock x:Name="GpuStateText" DockPanel.Dock="Right" TextAlignment="Right" />
+                    </DockPanel>
+                    <TextBlock x:Name="GpuValueText" Margin="0,20,0,0" FontSize="40" FontWeight="SemiBold" Text="—" />
+                    <TextBlock x:Name="GpuNameText" Margin="0,10,0,0" FontWeight="SemiBold" Text="Discovering…" TextWrapping="Wrap" />
+                    <TextBlock x:Name="GpuSourceText" Margin="0,6,0,0" Text="Source: —" TextWrapping="Wrap" />
+                    <TextBlock x:Name="GpuRangeText" Margin="0,6,0,0" Text="Session range: —" />
+                    <TextBlock x:Name="GpuFreshnessText" Margin="0,6,0,0" Text="Freshness: —" />
+                    <TextBlock x:Name="GpuReasonText" Margin="0,14,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="4" Padding="16" BorderThickness="1" CornerRadius="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Margin="0,0,8,0" VerticalAlignment="Center" Text="Threshold °C" />
+                <TextBox x:Name="ThresholdTextBox" Grid.Column="1" VerticalContentAlignment="Center" ToolTip="No alert is enabled until you enter a threshold." />
+                <TextBlock Grid.Column="3" Margin="0,0,8,0" VerticalAlignment="Center" Text="Persist seconds" />
+                <TextBox x:Name="PersistenceTextBox" Grid.Column="4" Text="30" VerticalContentAlignment="Center" />
+                <TextBlock Grid.Column="6" Margin="0,0,8,0" VerticalAlignment="Center" Text="Hysteresis °C" />
+                <TextBox x:Name="HysteresisTextBox" Grid.Column="7" Text="3" VerticalContentAlignment="Center" />
+                <Button Grid.Column="9" Padding="18,6" Click="ApplyAlert_Click" Content="Apply alert" />
+            </Grid>
+        </Border>
+
+        <DockPanel Grid.Row="6">
+            <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh now" />
+            <StackPanel>
+                <TextBlock x:Name="StatusText" Text="Starting read-only sensor probe…" TextWrapping="Wrap" />
+                <TextBlock x:Name="NotificationStatusText"
+                           Margin="0,4,0,0"
+                           Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>
