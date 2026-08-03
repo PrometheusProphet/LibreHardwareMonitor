@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <WindowsPackageType>None</WindowsPackageType>
+    <ApplicationIcon>Assets\computer-vitals.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\computer-vitals.ico" />
+    <Resource Include="Assets\computer-vitals.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
+    <ProjectReference Include="..\ComputerVitals.Core\ComputerVitals.Core.csproj" />
+  </ItemGroup>
+
+</Project>
