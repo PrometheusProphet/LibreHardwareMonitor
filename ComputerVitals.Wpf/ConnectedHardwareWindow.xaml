@@ -23,8 +23,8 @@
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh inventory" />
             <StackPanel>
-                <TextBlock FontSize="28" FontWeight="SemiBold" Text="Connected hardware" />
-                <TextBlock Margin="0,6,0,0"
+                <local:SelectableText FontSize="28" FontWeight="SemiBold" Text="Connected hardware" />
+                <local:SelectableText Margin="0,6,0,0"
                            Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                            Text="Read-only local inventory. Device relationships and unknown fields remain visible." />
             </StackPanel>
@@ -43,8 +43,8 @@
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type local:HardwareInventoryViewItem}" ItemsSource="{Binding Children}">
                             <StackPanel Margin="0,4">
-                                <TextBlock FontWeight="SemiBold" Text="{Binding DisplayName}" TextWrapping="Wrap" />
-                                <TextBlock FontSize="12"
+                                <local:SelectableText FontWeight="SemiBold" Text="{Binding DisplayName}" TextWrapping="Wrap" />
+                                <local:SelectableText FontSize="12"
                                            Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                                            Text="{Binding Summary}"
                                            TextWrapping="Wrap" />
@@ -57,21 +57,21 @@
             <Border Grid.Column="2" Padding="20" BorderThickness="1" CornerRadius="10">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock x:Name="DetailsTitle" FontSize="22" FontWeight="SemiBold" Text="Select a component" TextWrapping="Wrap" />
-                        <TextBlock x:Name="DetailsRole"
+                        <local:SelectableText x:Name="DetailsTitle" FontSize="22" FontWeight="SemiBold" Text="Select a component" TextWrapping="Wrap" />
+                        <local:SelectableText x:Name="DetailsRole"
                                    Margin="0,8,0,0"
                                    Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                                    TextWrapping="Wrap" />
                         <Separator Margin="0,18,0,14" />
-                        <TextBlock x:Name="DetailsText" TextWrapping="Wrap" />
+                        <local:SelectableText x:Name="DetailsText" TextWrapping="Wrap" />
                     </StackPanel>
                 </ScrollViewer>
             </Border>
         </Grid>
 
         <StackPanel Grid.Row="4">
-            <TextBlock x:Name="StatusText" Text="Preparing read-only hardware inventory…" TextWrapping="Wrap" />
-            <TextBlock x:Name="EvidenceText"
+            <local:SelectableText x:Name="StatusText" Text="Preparing read-only hardware inventory…" TextWrapping="Wrap" />
+            <local:SelectableText x:Name="EvidenceText"
                        Margin="0,4,0,0"
                        Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                        TextWrapping="Wrap" />

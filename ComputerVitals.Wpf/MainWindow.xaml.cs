@@ -119,13 +119,13 @@ public partial class MainWindow : Window
     {
         bool cpu = sample.DeviceKind == TemperatureDeviceKind.Cpu;
         Border card = cpu ? CpuCard : GpuCard;
-        TextBlock state = cpu ? CpuStateText : GpuStateText;
-        TextBlock value = cpu ? CpuValueText : GpuValueText;
-        TextBlock name = cpu ? CpuNameText : GpuNameText;
-        TextBlock source = cpu ? CpuSourceText : GpuSourceText;
-        TextBlock range = cpu ? CpuRangeText : GpuRangeText;
-        TextBlock freshness = cpu ? CpuFreshnessText : GpuFreshnessText;
-        TextBlock reason = cpu ? CpuReasonText : GpuReasonText;
+        SelectableText state = cpu ? CpuStateText : GpuStateText;
+        SelectableText value = cpu ? CpuValueText : GpuValueText;
+        SelectableText name = cpu ? CpuNameText : GpuNameText;
+        SelectableText source = cpu ? CpuSourceText : GpuSourceText;
+        SelectableText range = cpu ? CpuRangeText : GpuRangeText;
+        SelectableText freshness = cpu ? CpuFreshnessText : GpuFreshnessText;
+        SelectableText reason = cpu ? CpuReasonText : GpuReasonText;
 
         state.Text = sample.State.ToString();
         value.Text = sample.ValueCelsius is float current ? $"{current:F1} °C" : "—";
