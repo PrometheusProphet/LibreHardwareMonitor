@@ -259,8 +259,9 @@ automatic updates remain out of scope for this phase.
 
 ### Phase 5 — local diagnostic recommendations
 
-**Status: first cautious recommendation slice complete; broader evidence
-reconciliation remains gated.**
+**Status: cautious recommendation and bounded session-only typed
+reconciliation complete; raw, external, durable, and real-world
+reconciliation remain gated or out of scope.**
 
 Combine temperature, inventory, incident, and vendor evidence into clear local
 recommendations:
@@ -278,20 +279,32 @@ inventory, vendor-provenance, and temperature context. Confidence is limited to
 `Insufficient` or `Limited`; conflicts and unknowns remain visible, and the
 card proposes only a user-performed next observation.
 
+The same bounded session surface now retains at most 30 timeline entries and
+30 typed source claims. A retained entry receives a stable bounded observation
+key; a claim contains only a typed source, disposition, stage, observation
+time, and that key. Reconciliation considers only the selected entry's key and
+copies only the selected entry's already explicit device reference exactly, or
+no device reference. Typed `Unknown`, conflicts, and scope limits remain visible. The
+surface does not import raw logs or files, infer an identity from inventory
+presence or selection, retain data beyond the session, operate a vendor path,
+or return a causal, status, or action verdict. It does not claim that actual
+installer, Device Manager, or other external records were reconciled.
+
 This phase remains read-only. Any link to a vendor tool opens only on explicit
 user action and must show relevant restart, power, encryption, compatibility,
 and interruption cautions first.
 
 ### Phase 6 — product hardening and release decision
 
-**Status: blocked on explicit product decisions, not implementation effort.**
+**Status: internal developer-preview decisions recorded; release and hardening
+evidence remains open.**
 
-Before calling the product a release candidate, decide and document the
-installer, code-signing, update and release channel, supported Windows
-versions, privacy statement, crash-handling policy, accessibility target, and
-support boundary. Then add packaging and upgrade tests, clean-machine install
-and uninstall evidence, accessibility checks, failure recovery, and a
-repeatable release checklist.
+The selected [developer-preview posture](release/DEVELOPER-PREVIEW.md) is an
+unsigned, unpackaged, local `win-x64` self-contained .NET publish evaluation
+only. It is not a release candidate or a release-completion claim. Packaging
+and upgrade tests, clean-machine install and uninstall evidence, accessibility
+checks, failure recovery, and a repeatable release checklist remain
+unperformed.
 
 No package publication, signing, auto-update, telemetry, account, cloud, or
 remote-support feature is implied by this roadmap. Each requires separate
@@ -323,16 +336,17 @@ The bounded immediate implementation sequence is complete:
 4. The WD19S vendor-evidence spike is complete with a no-go recommendation for
    an update checker; update availability remains unknown.
 
-Pause for the explicit Phase 6 release and data-retention decisions before
-packaging or retaining diagnostics beyond a session. Completion of this
-sequence does not activate a later roadmap phase.
+The internal developer-preview posture is recorded in
+[DEVELOPER-PREVIEW.md](release/DEVELOPER-PREVIEW.md). It does not settle
+retention or export, final public branding, vendor actions, hardware control,
+or a future release reversal, and it does not activate Phase 7.
 
 ## Deferred decisions
 
 These remain user-owned until a focused spike or product decision settles them:
 
-- final product name and visual identity;
-- installer, code-signing, update, and release channel;
+- final public product name, branding, trademark posture, and support promise;
+- installer, code-signing, update, release channel, and public deployment;
 - vendor catalog integrations, update-availability policy, downloads,
   installation, rollback, and firmware execution;
 - retention duration and export formats;
