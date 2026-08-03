@@ -22,6 +22,11 @@
 
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh inventory" />
+            <Button DockPanel.Dock="Right"
+                    Margin="0,0,8,0"
+                    Padding="16,6"
+                    Click="IncidentTimeline_Click"
+                    Content="Incident timeline" />
             <StackPanel>
                 <local:SelectableText FontSize="28" FontWeight="SemiBold" Text="Connected hardware" />
                 <local:SelectableText Margin="0,6,0,0"

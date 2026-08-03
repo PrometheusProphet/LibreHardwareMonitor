@@ -170,4 +170,7 @@ only for an exact `Dell Dock WD19S` display-name match. It does not claim broad
 hardware compatibility, durable update availability, release readiness, or
 successful notification delivery on every machine. Real notification delivery
 and CPU temperature access with PawnIO installed remain targeted hardware
-evidence gaps.
+evidence gaps. The active intervention slice is session-only: it records
+concise local conditions, actions, outcomes, evidence sources, and qualified
+conclusions, then discards them when closed. It cannot record a confirmed root
+cause claim.

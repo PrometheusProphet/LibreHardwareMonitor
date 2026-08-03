@@ -22,6 +22,9 @@ public partial class ConnectedHardwareWindow : Window
 
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
 
+    private void IncidentTimeline_Click(object sender, RoutedEventArgs e) =>
+        new IncidentTimelineWindow { Owner = this }.Show();
+
     private async Task RefreshAsync()
     {
         if (_refreshing)
