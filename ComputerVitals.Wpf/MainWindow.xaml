@@ -93,6 +93,11 @@
 
         <DockPanel Grid.Row="6">
             <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh now" />
+            <Button DockPanel.Dock="Right"
+                    Margin="0,0,8,0"
+                    Padding="16,6"
+                    Click="ConnectedHardware_Click"
+                    Content="Connected hardware" />
             <StackPanel>
                 <TextBlock x:Name="StatusText" Text="Starting read-only sensor probe…" TextWrapping="Wrap" />
                 <TextBlock x:Name="NotificationStatusText"

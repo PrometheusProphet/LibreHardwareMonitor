@@ -55,6 +55,9 @@ public partial class MainWindow : Window
 
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
 
+    private void ConnectedHardware_Click(object sender, RoutedEventArgs e) =>
+        new ConnectedHardwareWindow { Owner = this }.Show();
+
     private void ApplyAlert_Click(object sender, RoutedEventArgs e)
     {
         if (!float.TryParse(ThresholdTextBox.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out float threshold) ||
