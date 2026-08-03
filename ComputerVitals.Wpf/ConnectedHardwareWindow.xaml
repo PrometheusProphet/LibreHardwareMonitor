@@ -22,12 +22,12 @@
 
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh inventory" />
-            <Button x:Name="FocusRecognizedDeviceButton"
+            <Button x:Name="FocusSelectedParentButton"
                     DockPanel.Dock="Right"
                     Margin="0,0,8,0"
                     Padding="16,6"
-                    Click="FocusRecognizedDevice_Click"
-                    Content="Focus recognized device"
+                    Click="FocusSelectedParent_Click"
+                    Content="Focus selected subtree"
                     Visibility="Collapsed" />
             <Button x:Name="ShowAllDevicesButton"
                     DockPanel.Dock="Right"

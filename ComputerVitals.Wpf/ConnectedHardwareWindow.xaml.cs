@@ -13,8 +13,10 @@ public partial class ConnectedHardwareWindow : Window
 {
     private readonly IHardwareInventoryProbe _inventoryProbe = new WindowsDeviceInventoryProvider();
     private IReadOnlyList<HardwareInventoryViewItem> _allDevices = [];
-    private HardwareInventoryViewItem? _recognizedDevice;
+    private HardwareInventoryNavigator? _navigator;
+    private HardwareInventoryViewItem? _selectedDevice;
     private HardwareInventoryItem? _recognizedInventoryItem;
+    private HardwareInventorySnapshot? _lastSnapshot;
     private bool _refreshing;
 
     public ConnectedHardwareWindow()
@@ -27,13 +29,20 @@ public partial class ConnectedHardwareWindow : Window
 
     private void ShowAllDevices_Click(object sender, RoutedEventArgs e)
     {
+        _navigator?.ShowAll();
         DeviceTree.ItemsSource = _allDevices;
         ShowAllDevicesButton.Visibility = Visibility.Collapsed;
-        FocusRecognizedDeviceButton.Visibility = _recognizedDevice is null ? Visibility.Collapsed : Visibility.Visible;
-        UpdateStatusForAllDevices();
+        UpdateFocusSelectedParentButton();
+        UpdateStatus();
     }
 
-    private void FocusRecognizedDevice_Click(object sender, RoutedEventArgs e) => ShowRecognizedDevice();
+    private void FocusSelectedParent_Click(object sender, RoutedEventArgs e)
+    {
+        if (_navigator is null || _selectedDevice is null || !_navigator.Focus(_selectedDevice.Item.InstanceId))
+            return;
+
+        ShowFocusedParent();
+    }
 
     private void IncidentTimeline_Click(object sender, RoutedEventArgs e) =>
         new IncidentTimelineWindow(_recognizedInventoryItem) { Owner = this }.Show();
@@ -48,16 +57,18 @@ public partial class ConnectedHardwareWindow : Window
         {
             HardwareInventorySnapshot snapshot = await _inventoryProbe.ReadAsync();
             IReadOnlyList<HardwareInventoryNode> roots = HardwareInventoryTreeBuilder.Build(snapshot.Items);
+            _lastSnapshot = snapshot;
+            _navigator = new HardwareInventoryNavigator(roots);
             _allDevices = roots.Select(HardwareInventoryViewItem.FromNode).ToArray();
+            _selectedDevice = null;
             HardwareInventoryItem? supportMatchedItem = snapshot.Items.FirstOrDefault(item =>
                 OfficialSupportGuidanceResolver.Resolve(item) is not null);
             if (supportMatchedItem is null)
             {
-                _recognizedDevice = null;
                 _recognizedInventoryItem = null;
                 DeviceTree.ItemsSource = _allDevices;
                 ShowAllDevicesButton.Visibility = Visibility.Collapsed;
-                FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
+                FocusSelectedParentButton.Visibility = Visibility.Collapsed;
                 DetailsTitle.Text = "Select a component";
                 DetailsRole.Text = string.Empty;
                 DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
@@ -67,38 +78,38 @@ public partial class ConnectedHardwareWindow : Window
             else
             {
                 _recognizedInventoryItem = supportMatchedItem;
-                HardwareInventoryNode? recognizedNode = HardwareInventoryTreeSearch.FindByInstanceId(roots, supportMatchedItem.InstanceId);
-                _recognizedDevice = recognizedNode is null ? null : HardwareInventoryViewItem.FromNode(recognizedNode);
-                if (_recognizedDevice is null)
+                if (!_navigator.Focus(supportMatchedItem.InstanceId))
                 {
                     DeviceTree.ItemsSource = _allDevices;
                     ShowAllDevicesButton.Visibility = Visibility.Collapsed;
-                    FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
+                    FocusSelectedParentButton.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    ShowRecognizedDevice();
+                    ShowFocusedParent();
                 }
 
                 DetailsTitle.Text = $"Recognized device: {supportMatchedItem.DisplayName}";
                 DetailsRole.Text = HardwareRoleExplainer.Explain(supportMatchedItem);
-                DetailsText.Text = _recognizedDevice is null
+                DetailsText.Text = _navigator.FocusedParent is null
                     ? "A reliable local match has official support guidance. The full Windows device tree remains available for inspection."
                     : "A reliable local match has official support guidance. This view starts at the recognized device and shows its reported children. You can return to the full Windows device tree at any time.";
                 SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(supportMatchedItem));
                 SetOfficialUpdateGuidance(OfficialVendorUpdateGuidanceResolver.Resolve(supportMatchedItem));
             }
-            UpdateStatus(snapshot);
+            UpdateStatus();
             EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
         }
         catch (Exception exception)
         {
             DeviceTree.ItemsSource = null;
             _allDevices = [];
-            _recognizedDevice = null;
+            _navigator = null;
+            _selectedDevice = null;
             _recognizedInventoryItem = null;
+            _lastSnapshot = null;
             ShowAllDevicesButton.Visibility = Visibility.Collapsed;
-            FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
+            FocusSelectedParentButton.Visibility = Visibility.Collapsed;
             DetailsTitle.Text = "Inventory unavailable";
             DetailsRole.Text = string.Empty;
             DetailsText.Text = "No inventory result is presented because the read failed.";
@@ -113,28 +124,26 @@ public partial class ConnectedHardwareWindow : Window
         }
     }
 
-    private void ShowRecognizedDevice()
+    private void ShowFocusedParent()
     {
-        if (_recognizedDevice is null)
+        if (_navigator?.FocusedParent is null)
             return;
 
-        DeviceTree.ItemsSource = new[] { _recognizedDevice };
+        DeviceTree.ItemsSource = _navigator.VisibleInventory.Select(HardwareInventoryViewItem.FromNode).ToArray();
         ShowAllDevicesButton.Visibility = Visibility.Visible;
-        FocusRecognizedDeviceButton.Visibility = Visibility.Collapsed;
+        FocusSelectedParentButton.Visibility = Visibility.Collapsed;
+        UpdateStatus();
     }
 
-    private void UpdateStatus(HardwareInventorySnapshot snapshot)
+    private void UpdateStatus()
     {
-        string scope = _recognizedDevice is null
+        if (_lastSnapshot is null)
+            return;
+
+        string scope = _navigator?.FocusedParent is null
             ? "Showing the full Windows device tree."
-            : $"Showing {_recognizedDevice.DisplayName} and its reported children.";
-        StatusText.Text = $"Read-only inventory refreshed: {snapshot.ObservedAt.ToLocalTime():T}. {snapshot.Items.Count} Windows-reported components. {scope}";
-    }
-
-    private void UpdateStatusForAllDevices()
-    {
-        if (StatusText.Text.StartsWith("Read-only inventory refreshed:", StringComparison.Ordinal))
-            StatusText.Text = StatusText.Text.Replace($"Showing {_recognizedDevice?.DisplayName} and its reported children.", "Showing the full Windows device tree.", StringComparison.Ordinal);
+            : $"Showing {_navigator.FocusedParent.Item.DisplayName} and its complete reported subtree.";
+        StatusText.Text = $"Read-only inventory refreshed: {_lastSnapshot.ObservedAt.ToLocalTime():T}. {_lastSnapshot.Items.Count} Windows-reported components. {scope}";
     }
 
     private void DeviceTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -142,11 +151,24 @@ public partial class ConnectedHardwareWindow : Window
         if (e.NewValue is not HardwareInventoryViewItem item)
             return;
 
+        _selectedDevice = item;
+        UpdateFocusSelectedParentButton();
         DetailsTitle.Text = item.DisplayName;
         DetailsRole.Text = item.Role;
         DetailsText.Text = Describe(item.Item);
         SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(item.Item));
         SetOfficialUpdateGuidance(OfficialVendorUpdateGuidanceResolver.Resolve(item.Item));
+    }
+
+    private void UpdateFocusSelectedParentButton()
+    {
+        bool canFocus = _selectedDevice is not null &&
+            _selectedDevice.Children.Count > 0 &&
+            !string.Equals(
+                _navigator?.FocusedParent?.Item.InstanceId,
+                _selectedDevice.Item.InstanceId,
+                StringComparison.OrdinalIgnoreCase);
+        FocusSelectedParentButton.Visibility = canFocus ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void SetOfficialSupportGuidance(OfficialSupportGuidance? guidance)
