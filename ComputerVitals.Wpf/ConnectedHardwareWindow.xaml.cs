@@ -62,6 +62,7 @@ public partial class ConnectedHardwareWindow : Window
                 DetailsRole.Text = string.Empty;
                 DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
                 SetOfficialSupportGuidance(null);
+                SetOfficialUpdateGuidance(null);
             }
             else
             {
@@ -85,6 +86,7 @@ public partial class ConnectedHardwareWindow : Window
                     ? "A reliable local match has official support guidance. The full Windows device tree remains available for inspection."
                     : "A reliable local match has official support guidance. This view starts at the recognized device and shows its reported children. You can return to the full Windows device tree at any time.";
                 SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(supportMatchedItem));
+                SetOfficialUpdateGuidance(OfficialVendorUpdateGuidanceResolver.Resolve(supportMatchedItem));
             }
             UpdateStatus(snapshot);
             EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
@@ -101,6 +103,7 @@ public partial class ConnectedHardwareWindow : Window
             DetailsRole.Text = string.Empty;
             DetailsText.Text = "No inventory result is presented because the read failed.";
             SetOfficialSupportGuidance(null);
+            SetOfficialUpdateGuidance(null);
             StatusText.Text = $"Read-only inventory failed: {exception.Message}";
             EvidenceText.Text = string.Empty;
         }
@@ -143,6 +146,7 @@ public partial class ConnectedHardwareWindow : Window
         DetailsRole.Text = item.Role;
         DetailsText.Text = Describe(item.Item);
         SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(item.Item));
+        SetOfficialUpdateGuidance(OfficialVendorUpdateGuidanceResolver.Resolve(item.Item));
     }
 
     private void SetOfficialSupportGuidance(OfficialSupportGuidance? guidance)
@@ -166,13 +170,42 @@ public partial class ConnectedHardwareWindow : Window
         if (OpenOfficialSupportButton.Tag is not Uri supportUri)
             return;
 
+        OpenUri(supportUri, "Official support");
+    }
+
+    private void SetOfficialUpdateGuidance(OfficialVendorUpdateGuidance? guidance)
+    {
+        if (guidance is null)
+        {
+            OfficialUpdateText.Text = "Official update guidance: update status is unknown because no reliable manufacturer-and-model catalog match and comparable local version evidence have both been established.";
+            OpenOfficialUpdateButton.Tag = null;
+            OpenOfficialUpdateButton.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        OfficialUpdateText.Text = $"Official update guidance: {guidance.Title}\nStatus: {guidance.Availability}\n{guidance.AvailabilityReason}\n{guidance.SafetyGuidance}\n{guidance.Evidence.Note}";
+        OpenOfficialUpdateButton.Content = $"Open {guidance.Provider} drivers and downloads";
+        OpenOfficialUpdateButton.Tag = guidance.CatalogUri;
+        OpenOfficialUpdateButton.Visibility = Visibility.Visible;
+    }
+
+    private void OpenOfficialUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (OpenOfficialUpdateButton.Tag is not Uri catalogUri)
+            return;
+
+        OpenUri(catalogUri, "Official drivers and downloads");
+    }
+
+    private void OpenUri(Uri uri, string label)
+    {
         try
         {
-            Process.Start(new ProcessStartInfo(supportUri.AbsoluteUri) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"Official support could not be opened: {exception.Message}";
+            StatusText.Text = $"{label} could not be opened: {exception.Message}";
         }
     }
 

@@ -178,3 +178,7 @@ the initial inventory view; the full Windows tree remains one click away. A
 timeline observation may explicitly link that recognized device and identify a
 pre-Windows stage, but the record never infers a relationship from device
 presence or treats Windows logs as decisive for POST-stage failures.
+The exact WD19S match also provides a manual link to Dell's live Drivers &
+Downloads catalog. It still reports update status as unknown, because the local
+inventory does not expose comparable firmware component versions and the
+product does not query or compare vendor catalogs.

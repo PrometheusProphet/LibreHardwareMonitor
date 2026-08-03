@@ -91,6 +91,14 @@
                                 Padding="16,6"
                                 Click="OpenOfficialSupport_Click"
                                 Visibility="Collapsed" />
+                        <Separator Margin="0,18,0,14" />
+                        <local:SelectableText x:Name="OfficialUpdateText" TextWrapping="Wrap" />
+                        <Button x:Name="OpenOfficialUpdateButton"
+                                Margin="0,12,0,0"
+                                HorizontalAlignment="Left"
+                                Padding="16,6"
+                                Click="OpenOfficialUpdate_Click"
+                                Visibility="Collapsed" />
                     </StackPanel>
                 </ScrollViewer>
             </Border>
