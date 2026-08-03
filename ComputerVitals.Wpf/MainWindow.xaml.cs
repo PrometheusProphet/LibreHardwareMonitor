@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private LibreHardwareTemperatureProbe? _probe;
     private TemperatureMonitor? _monitor;
     private TemperatureAlertEvaluator? _alertEvaluator;
+    private IReadOnlyList<TemperatureSample> _latestTemperatureSamples = [];
     private bool _refreshing;
 
     public MainWindow(WindowsAppNotificationService notifications, string notificationStatus)
@@ -56,7 +57,7 @@ public partial class MainWindow : Window
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
 
     private void ConnectedHardware_Click(object sender, RoutedEventArgs e) =>
-        new ConnectedHardwareWindow { Owner = this }.Show();
+        new ConnectedHardwareWindow(_latestTemperatureSamples.ToArray()) { Owner = this }.Show();
 
     private void ApplyAlert_Click(object sender, RoutedEventArgs e)
     {
@@ -95,6 +96,7 @@ public partial class MainWindow : Window
         try
         {
             IReadOnlyList<TemperatureSample> samples = await Task.Run(() => _monitor.Refresh(DateTimeOffset.UtcNow));
+            _latestTemperatureSamples = samples.ToArray();
             foreach (TemperatureSample sample in samples)
             {
                 UpdateCard(sample);

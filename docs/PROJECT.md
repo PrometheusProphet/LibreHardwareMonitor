@@ -259,7 +259,8 @@ automatic updates remain out of scope for this phase.
 
 ### Phase 5 — local diagnostic recommendations
 
-**Status: follows successful evidence spikes.**
+**Status: first cautious recommendation slice complete; broader evidence
+reconciliation remains gated.**
 
 Combine temperature, inventory, incident, and vendor evidence into clear local
 recommendations:
@@ -270,6 +271,12 @@ recommendations:
   user observations rather than selecting a convenient source; and
 - keep a recommendation distinct from a claim that a change will fix a
   symptom.
+
+Incident Timeline now derives a selectable, session-only cautious
+recommendation from the selected observation plus explicitly scoped local
+inventory, vendor-provenance, and temperature context. Confidence is limited to
+`Insufficient` or `Limited`; conflicts and unknowns remain visible, and the
+card proposes only a user-performed next observation.
 
 This phase remains read-only. Any link to a vendor tool opens only on explicit
 user action and must show relevant restart, power, encryption, compatibility,

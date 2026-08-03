@@ -12,10 +12,17 @@ public partial class IncidentTimelineWindow : Window
     private readonly SessionDiagnosticTimeline _timeline = new(capacity: 30);
     private readonly ControlledTestAssistant _controlledTests;
     private readonly ObservableCollection<TimelineEntryViewItem> _items = [];
-    private readonly DiagnosticDeviceReference? _recognizedDevice;
+    private readonly IReadOnlyList<TemperatureSample> _temperatureSamples;
+    private readonly HardwareInventoryItem? _inventoryItem;
+    private readonly DiagnosticDeviceReference? _availableDevice;
 
-    public IncidentTimelineWindow(HardwareInventoryItem? recognizedDevice = null)
+    public IncidentTimelineWindow(
+        IReadOnlyList<TemperatureSample> temperatureSamples,
+        HardwareInventoryItem? inventoryItem = null)
     {
+        ArgumentNullException.ThrowIfNull(temperatureSamples);
+        _temperatureSamples = temperatureSamples.ToArray();
+        _inventoryItem = inventoryItem;
         _controlledTests = new ControlledTestAssistant(_timeline);
         InitializeComponent();
         OutcomeComboBox.ItemsSource = Enum.GetValues<DiagnosticOutcome>();
@@ -30,19 +37,20 @@ public partial class IncidentTimelineWindow : Window
         ControlledObservationStageComboBox.SelectedItem = DiagnosticObservationStage.Unknown;
         ControlledOutcomeComboBox.ItemsSource = Enum.GetValues<DiagnosticOutcome>();
         ControlledOutcomeComboBox.SelectedItem = DiagnosticOutcome.Inconclusive;
-        if (recognizedDevice is not null)
+        if (inventoryItem is not null)
         {
-            _recognizedDevice = new DiagnosticDeviceReference(
-                recognizedDevice.DisplayName,
-                "an exact local inventory match",
-                recognizedDevice.IdentityEvidence.ObservedAt);
+            _availableDevice = new DiagnosticDeviceReference(
+                inventoryItem.DisplayName,
+                "the available local inventory reference",
+                inventoryItem.IdentityEvidence.ObservedAt);
             RelatedDeviceCheckBox.Visibility = Visibility.Visible;
             RelatedDeviceText.Visibility = Visibility.Visible;
-            RelatedDeviceText.Text = $"Available reference: {_recognizedDevice.DisplayName}, observed locally {_recognizedDevice.ObservedAt.ToLocalTime():g}. Select the box only when this observation involved that device. A link is not a causal claim.";
+            RelatedDeviceText.Text = $"Available reference: {_availableDevice.DisplayName}, observed locally {_availableDevice.ObservedAt.ToLocalTime():g}. Select the box only when this observation involved that device. A link is not a causal claim.";
             ControlledRelatedDeviceCheckBox.Visibility = Visibility.Visible;
         }
 
         TimelineList.ItemsSource = _items;
+        UpdateRecommendation(null);
     }
 
     private void PrepareControlledTest_Click(object sender, RoutedEventArgs e)
@@ -62,7 +70,7 @@ public partial class IncidentTimelineWindow : Window
                 ControlledActionTextBox.Text,
                 observationStage,
                 OnlyVariableWillChangeCheckBox.IsChecked == true,
-                ControlledRelatedDeviceCheckBox.IsChecked == true ? _recognizedDevice : null));
+                ControlledRelatedDeviceCheckBox.IsChecked == true ? _availableDevice : null));
             SetControlledPlanActive(true);
             CurrentControlledPlanText.Text =
                 $"Prepared variable: {ControlledVariableTextBox.Text}. Keep constant: {ControlledConstantsTextBox.Text}. " +
@@ -164,7 +172,7 @@ public partial class IncidentTimelineWindow : Window
                 conclusion,
                 string.IsNullOrWhiteSpace(NoteTextBox.Text) ? null : NoteTextBox.Text,
                 observationStage,
-                RelatedDeviceCheckBox.IsChecked == true ? _recognizedDevice : null));
+                RelatedDeviceCheckBox.IsChecked == true ? _availableDevice : null));
             RefreshItems();
             StatusText.Text = $"Recorded local observation at {DateTimeOffset.Now:T}. Session entries: {_timeline.Entries.Count}.";
             ConditionTextBox.Clear();
@@ -182,15 +190,50 @@ public partial class IncidentTimelineWindow : Window
         _items.Clear();
         foreach (DiagnosticTimelineEntry entry in _timeline.Entries)
             _items.Add(TimelineEntryViewItem.FromEntry(entry));
+
+        if (_items.Count > 0)
+            TimelineList.SelectedIndex = 0;
+        else
+            UpdateRecommendation(null);
+    }
+
+    private void TimelineList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) =>
+        UpdateRecommendation((TimelineList.SelectedItem as TimelineEntryViewItem)?.Entry);
+
+    private void UpdateRecommendation(DiagnosticTimelineEntry? selectedObservation)
+    {
+        OfficialVendorUpdateGuidance? vendorGuidance = _inventoryItem is null
+            ? null
+            : OfficialVendorUpdateGuidanceResolver.Resolve(_inventoryItem);
+        LocalDiagnosticRecommendation recommendation = LocalDiagnosticRecommendationEngine.Create(
+            new LocalDiagnosticRecommendationInput(
+                selectedObservation,
+                _timeline.Entries.ToArray(),
+                _temperatureSamples.ToArray(),
+                _inventoryItem,
+                vendorGuidance));
+
+        RecommendationObservationText.Text = recommendation.Observation;
+        RecommendationWhyText.Text = $"Why it may matter\n{recommendation.WhyItMayMatter}";
+        RecommendationConfidenceText.Text = $"Confidence: {recommendation.Confidence}";
+        RecommendationBasisText.Text = recommendation.ConfidenceBasis;
+        RecommendationEvidenceText.Text = $"Evidence considered\n{recommendation.EvidenceConsidered}";
+        RecommendationUnknownsText.Text = $"Conflicts and unknowns\n{recommendation.ConflictsAndUnknowns}";
+        RecommendationNextText.Text = $"Safest next observation\n{recommendation.SafestNextObservation}";
     }
 }
 
-public sealed record TimelineEntryViewItem(string Headline, string Detail, string Qualification)
+public sealed record TimelineEntryViewItem(
+    DiagnosticTimelineEntry Entry,
+    string Headline,
+    string Detail,
+    string Qualification)
 {
     public static TimelineEntryViewItem FromEntry(DiagnosticTimelineEntry entry)
     {
         DiagnosticCorrelationAssessment correlation = DiagnosticCorrelationExplainer.Assess(entry);
         return new TimelineEntryViewItem(
+            entry,
             $"{entry.ObservedAt.ToLocalTime():g} — {entry.Outcome}",
             $"Condition: {entry.Condition}\nAction: {entry.Action}\nEvidence: {entry.EvidenceSource}" +
             $"\nObservation stage: {entry.ObservationStage}" +

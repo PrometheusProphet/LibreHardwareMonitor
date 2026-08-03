@@ -50,7 +50,7 @@
                         <ComboBox x:Name="ObservationStageComboBox" />
                         <CheckBox x:Name="RelatedDeviceCheckBox"
                                   Margin="0,14,0,0"
-                                  Content="Link the recognized local device to this observation"
+                                  Content="Link the available local device to this observation"
                                   Visibility="Collapsed" />
                         <local:SelectableText x:Name="RelatedDeviceText"
                                               Margin="0,4,0,0"
@@ -81,7 +81,7 @@
                         <ComboBox x:Name="ControlledObservationStageComboBox" />
                         <CheckBox x:Name="ControlledRelatedDeviceCheckBox"
                                   Margin="0,14,0,0"
-                                  Content="Explicitly link the recognized local device"
+                                  Content="Explicitly link the available local device"
                                   Visibility="Collapsed" />
                         <CheckBox x:Name="OnlyVariableWillChangeCheckBox" Margin="0,14,0,0">
                             <TextBlock Text="I will intentionally change only the one variable above."
@@ -121,9 +121,14 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="12" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="This window's observations" />
-                    <ListBox x:Name="TimelineList" Grid.Row="2" BorderThickness="0">
+                    <ListBox x:Name="TimelineList"
+                             Grid.Row="2"
+                             BorderThickness="0"
+                             SelectionChanged="TimelineList_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type local:TimelineEntryViewItem}">
                                 <Border Margin="0,0,0,10" Padding="12" BorderThickness="1" CornerRadius="8">
@@ -139,6 +144,21 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+
+                    <Border Grid.Row="4" Padding="14" BorderThickness="1" CornerRadius="8" MaxHeight="300">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Cautious recommendation" />
+                                <local:SelectableText x:Name="RecommendationObservationText" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationWhyText" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationConfidenceText" Margin="0,10,0,0" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationBasisText" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationEvidenceText" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationUnknownsText" Margin="0,10,0,0" TextWrapping="Wrap" />
+                                <local:SelectableText x:Name="RecommendationNextText" Margin="0,10,0,0" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>

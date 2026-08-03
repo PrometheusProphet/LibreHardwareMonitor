@@ -12,6 +12,7 @@ namespace ComputerVitals.Wpf;
 public partial class ConnectedHardwareWindow : Window
 {
     private readonly IHardwareInventoryProbe _inventoryProbe = new WindowsDeviceInventoryProvider();
+    private readonly IReadOnlyList<TemperatureSample> _temperatureSamples;
     private IReadOnlyList<HardwareInventoryViewItem> _allDevices = [];
     private HardwareInventoryNavigator? _navigator;
     private HardwareInventoryViewItem? _selectedDevice;
@@ -19,8 +20,10 @@ public partial class ConnectedHardwareWindow : Window
     private HardwareInventorySnapshot? _lastSnapshot;
     private bool _refreshing;
 
-    public ConnectedHardwareWindow()
+    public ConnectedHardwareWindow(IReadOnlyList<TemperatureSample> temperatureSamples)
     {
+        ArgumentNullException.ThrowIfNull(temperatureSamples);
+        _temperatureSamples = temperatureSamples.ToArray();
         InitializeComponent();
         Loaded += async (_, _) => await RefreshAsync();
     }
@@ -44,8 +47,11 @@ public partial class ConnectedHardwareWindow : Window
         ShowFocusedParent();
     }
 
-    private void IncidentTimeline_Click(object sender, RoutedEventArgs e) =>
-        new IncidentTimelineWindow(_recognizedInventoryItem) { Owner = this }.Show();
+    private void IncidentTimeline_Click(object sender, RoutedEventArgs e)
+    {
+        HardwareInventoryItem? contextItem = _selectedDevice?.Item ?? _recognizedInventoryItem;
+        new IncidentTimelineWindow(_temperatureSamples.ToArray(), contextItem) { Owner = this }.Show();
+    }
 
     private async Task RefreshAsync()
     {
