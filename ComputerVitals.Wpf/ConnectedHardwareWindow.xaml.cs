@@ -106,23 +106,17 @@ public partial class ConnectedHardwareWindow : Window
             UpdateStatus();
             EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            DeviceTree.ItemsSource = null;
-            _allDevices = [];
-            _navigator = null;
-            _selectedDevice = null;
-            _recognizedInventoryItem = null;
-            _lastSnapshot = null;
-            ShowAllDevicesButton.Visibility = Visibility.Collapsed;
-            FocusSelectedParentButton.Visibility = Visibility.Collapsed;
-            DetailsTitle.Text = "Inventory unavailable";
-            DetailsRole.Text = string.Empty;
-            DetailsText.Text = "No inventory result is presented because the read failed.";
-            SetOfficialSupportGuidance(null);
-            SetOfficialUpdateGuidance(null);
-            StatusText.Text = $"Read-only inventory failed: {exception.Message}";
-            EvidenceText.Text = string.Empty;
+            PresentNoInventoryResult();
+        }
+        catch (InvalidOperationException)
+        {
+            PresentNoInventoryResult();
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            PresentNoInventoryResult();
         }
         finally
         {
@@ -139,6 +133,26 @@ public partial class ConnectedHardwareWindow : Window
         ShowAllDevicesButton.Visibility = Visibility.Visible;
         FocusSelectedParentButton.Visibility = Visibility.Collapsed;
         UpdateStatus();
+    }
+
+    private void PresentNoInventoryResult()
+    {
+        ExpectedFailurePresentation presentation = ExpectedFailurePresentationPolicy.For(ExpectedFailureKind.InventoryRead);
+        DeviceTree.ItemsSource = null;
+        _allDevices = [];
+        _navigator = null;
+        _selectedDevice = null;
+        _recognizedInventoryItem = null;
+        _lastSnapshot = null;
+        ShowAllDevicesButton.Visibility = Visibility.Collapsed;
+        FocusSelectedParentButton.Visibility = Visibility.Collapsed;
+        DetailsTitle.Text = "Inventory unavailable";
+        DetailsRole.Text = string.Empty;
+        DetailsText.Text = presentation.Detail;
+        SetOfficialSupportGuidance(null);
+        SetOfficialUpdateGuidance(null);
+        StatusText.Text = presentation.Headline;
+        EvidenceText.Text = string.Empty;
     }
 
     private void UpdateStatus()

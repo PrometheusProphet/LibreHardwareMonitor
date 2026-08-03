@@ -42,9 +42,21 @@ public partial class MainWindow : Window
             _timer.Start();
             await RefreshAsync();
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            StatusText.Text = $"Sensor probe unavailable: {exception.Message}";
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (InvalidOperationException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (DllNotFoundException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (BadImageFormatException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
         }
     }
 
@@ -101,15 +113,27 @@ public partial class MainWindow : Window
             {
                 UpdateCard(sample);
                 TemperatureAlert? alert = _alertEvaluator?.Evaluate(sample);
-                if (alert is not null)
-                    _notifications.Show(alert);
+                if (alert is not null && _notifications.Show(alert) is ExpectedFailurePresentation notificationFailure)
+                    NotificationStatusText.Text = notificationFailure.Detail;
             }
 
             StatusText.Text = $"Last read-only refresh: {DateTimeOffset.Now:T}. Session history is kept only while this window is open.";
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            StatusText.Text = $"Refresh failed; previous values are not presented as current: {exception.Message}";
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (InvalidOperationException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (DllNotFoundException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (BadImageFormatException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
         }
         finally
         {
@@ -147,5 +171,42 @@ public partial class MainWindow : Window
             TemperatureSampleState.Unavailable => Brushes.IndianRed,
             _ => Brushes.Gray
         };
+    }
+
+    private void PresentTemperatureFailure(ExpectedFailureKind kind)
+    {
+        ExpectedFailurePresentation presentation = ExpectedFailurePresentationPolicy.For(kind);
+        _latestTemperatureSamples = [];
+        if (presentation.Disposition == ExpectedFailureDisposition.StopTemperatureMonitoring)
+        {
+            _timer.Stop();
+            _monitor = null;
+            _probe?.Dispose();
+            _probe = null;
+        }
+        StatusText.Text = presentation.Headline;
+        PresentUnavailableTemperatureCard(CpuCard, CpuStateText, CpuValueText, CpuNameText, CpuSourceText, CpuRangeText, CpuFreshnessText, CpuReasonText, presentation.Detail);
+        PresentUnavailableTemperatureCard(GpuCard, GpuStateText, GpuValueText, GpuNameText, GpuSourceText, GpuRangeText, GpuFreshnessText, GpuReasonText, presentation.Detail);
+    }
+
+    private static void PresentUnavailableTemperatureCard(
+        Border card,
+        SelectableText state,
+        SelectableText value,
+        SelectableText name,
+        SelectableText source,
+        SelectableText range,
+        SelectableText freshness,
+        SelectableText reason,
+        string detail)
+    {
+        state.Text = "Unavailable";
+        value.Text = "—";
+        name.Text = string.Empty;
+        source.Text = string.Empty;
+        range.Text = string.Empty;
+        freshness.Text = string.Empty;
+        reason.Text = detail;
+        card.BorderBrush = Brushes.IndianRed;
     }
 }

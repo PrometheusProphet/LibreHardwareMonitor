@@ -22,7 +22,7 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
     {
         cancellationToken.ThrowIfCancellationRequested();
         DateTimeOffset observedAt = DateTimeOffset.UtcNow;
-        DriverInventoryResult driverInventory = await Task.Run(ReadInstalledDrivers, cancellationToken);
+        DriverInventoryResult driverInventory = await Task.Run(() => ReadInstalledDrivers(observedAt), cancellationToken);
         DeviceInformationCollection devices = await DeviceInformation.FindAllAsync(
             string.Empty,
             RequestedProperties,
@@ -35,10 +35,7 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
         {
             string instanceId = device.Id;
             driverInventory.ByInstanceId.TryGetValue(instanceId, out DriverRecord? driver);
-            InventoryEvidence driverEvidence = new(
-                "Windows signed-driver inventory",
-                observedAt,
-                driverInventory.Reason);
+            InventoryEvidence driverEvidence = driverInventory.Evidence;
             InventoryEvidence firmwareEvidence = new(
                 "Windows PnP inventory",
                 observedAt,
@@ -63,7 +60,7 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
         return new HardwareInventorySnapshot(observedAt, items, pnpEvidence, reason);
     }
 
-    private static DriverInventoryResult ReadInstalledDrivers()
+    private static DriverInventoryResult ReadInstalledDrivers(DateTimeOffset observedAt)
     {
         try
         {
@@ -82,13 +79,22 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
                     ReadDate(driver["DriverDate"]));
             }
 
-            return new DriverInventoryResult(result, null);
-        }
-        catch (Exception exception)
-        {
             return new DriverInventoryResult(
-                new Dictionary<string, DriverRecord>(StringComparer.OrdinalIgnoreCase),
-                $"Windows signed-driver inventory could not be read: {exception.Message}");
+                result,
+                new InventoryEvidence("Windows signed-driver inventory", observedAt),
+                null);
+        }
+        catch (ManagementException)
+        {
+            return DriverEvidenceUnavailable(observedAt);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return DriverEvidenceUnavailable(observedAt);
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            return DriverEvidenceUnavailable(observedAt);
         }
     }
 
@@ -116,7 +122,11 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
         {
             return new DateTimeOffset(ManagementDateTimeConverter.ToDateTime(dmtfDate));
         }
-        catch (Exception)
+        catch (ArgumentException)
+        {
+            return null;
+        }
+        catch (FormatException)
         {
             return null;
         }
@@ -124,7 +134,17 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
 
     private sealed record DriverRecord(string? Provider, string? Version, DateTimeOffset? Date);
 
+    private static DriverInventoryResult DriverEvidenceUnavailable(DateTimeOffset observedAt)
+    {
+        ExpectedFailurePresentation presentation = ExpectedFailurePresentationPolicy.For(ExpectedFailureKind.DriverEvidenceRead);
+        return new DriverInventoryResult(
+            new Dictionary<string, DriverRecord>(StringComparer.OrdinalIgnoreCase),
+            new InventoryEvidence("Windows signed-driver inventory unavailable", observedAt, presentation.Detail),
+            presentation.Detail);
+    }
+
     private sealed record DriverInventoryResult(
         IReadOnlyDictionary<string, DriverRecord> ByInstanceId,
+        InventoryEvidence Evidence,
         string? Reason);
 }

@@ -301,10 +301,13 @@ evidence remains open.**
 
 The selected [developer-preview posture](release/DEVELOPER-PREVIEW.md) is an
 unsigned, unpackaged, local `win-x64` self-contained .NET publish evaluation
-only. It is not a release candidate or a release-completion claim. Packaging
-and upgrade tests, clean-machine install and uninstall evidence, accessibility
-checks, failure recovery, and a repeatable release checklist remain
-unperformed.
+only. Expected startup, sensor-refresh, notification, and inventory-operation
+failures now have fixed local presentation that keeps unavailable data and
+partial driver evidence explicit. It is not a release candidate or a
+release-completion claim. Unexpected process crashes, restart and recovery,
+dumps or reporting, packaging and upgrade tests, clean-machine install and
+uninstall evidence, accessibility checks, and a repeatable release checklist
+remain unverified or unperformed.
 
 No package publication, signing, auto-update, telemetry, account, cloud, or
 remote-support feature is implied by this roadmap. Each requires separate
