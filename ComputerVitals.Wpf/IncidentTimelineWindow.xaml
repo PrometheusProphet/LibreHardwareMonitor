@@ -7,10 +7,12 @@
         Title="Incident timeline"
         Icon="Assets/computer-vitals.ico"
         Width="1060"
-        Height="720"
-        MinWidth="820"
-        MinHeight="560"
-        WindowStartupLocation="CenterOwner">
+         Height="720"
+         MinWidth="820"
+         MinHeight="560"
+         WindowStartupLocation="CenterOwner"
+         KeyboardNavigation.TabNavigation="Continue"
+         FocusManager.FocusedElement="{Binding ElementName=ConditionTextBox}">
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -39,29 +41,56 @@
                     <StackPanel>
                         <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Record an observation" />
                         <local:SelectableText Margin="0,16,0,4" Text="Condition" />
-                        <TextBox x:Name="ConditionTextBox" MaxLength="500" TextWrapping="Wrap" />
+                        <TextBox x:Name="ConditionTextBox" MaxLength="500" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Observation condition"
+                                 AutomationProperties.HelpText="Describe the observed condition for this session-only observation."
+                                 TabIndex="0" />
                         <local:SelectableText Margin="0,12,0,4" Text="Action or intervention" />
-                        <TextBox x:Name="ActionTextBox" MaxLength="500" TextWrapping="Wrap" />
+                        <TextBox x:Name="ActionTextBox" MaxLength="500" TextWrapping="Wrap"
+                                 AutomationProperties.Name="User-performed action or intervention"
+                                 AutomationProperties.HelpText="Describe what you performed or observed; the application does not perform the action."
+                                 TabIndex="1" />
                         <local:SelectableText Margin="0,12,0,4" Text="Outcome" />
-                        <ComboBox x:Name="OutcomeComboBox" />
+                        <ComboBox x:Name="OutcomeComboBox"
+                                  AutomationProperties.Name="Observation outcome"
+                                  AutomationProperties.HelpText="Select the observed outcome without making a causal conclusion."
+                                  TabIndex="2" />
                         <local:SelectableText Margin="0,12,0,4" Text="Conclusion level" />
-                        <ComboBox x:Name="ConclusionComboBox" />
+                        <ComboBox x:Name="ConclusionComboBox"
+                                  AutomationProperties.Name="Observation conclusion level"
+                                  AutomationProperties.HelpText="Select the qualified conclusion level; confirmed root cause is unavailable."
+                                  TabIndex="3" />
                         <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
-                        <ComboBox x:Name="ObservationStageComboBox" />
+                        <ComboBox x:Name="ObservationStageComboBox"
+                                  AutomationProperties.Name="Observation stage"
+                                  AutomationProperties.HelpText="Select whether the observation occurred before Windows, while Windows was running, or is unknown."
+                                  TabIndex="4" />
                         <CheckBox x:Name="RelatedDeviceCheckBox"
                                   Margin="0,14,0,0"
                                   Content="Link the available local device to this observation"
-                                  Visibility="Collapsed" />
+                                  Visibility="Collapsed"
+                                  AutomationProperties.Name="Explicitly link selected local device"
+                                  AutomationProperties.HelpText="Link only when this observation explicitly involved the available local device; selection or presence does not infer a relationship."
+                                  TabIndex="5" />
                         <local:SelectableText x:Name="RelatedDeviceText"
                                               Margin="0,4,0,0"
                                               Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
                                               TextWrapping="Wrap"
                                               Visibility="Collapsed" />
                         <local:SelectableText Margin="0,12,0,4" Text="Evidence source" />
-                        <TextBox x:Name="EvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap" />
+                        <TextBox x:Name="EvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Observation evidence source"
+                                 AutomationProperties.HelpText="Enter a concise session-only evidence source description."
+                                 TabIndex="6" />
                         <local:SelectableText Margin="0,12,0,4" Text="Concise note (optional)" />
-                        <TextBox x:Name="NoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                        <Button Margin="0,16,0,0" Padding="16,6" HorizontalAlignment="Left" Click="Record_Click" Content="Record observation" />
+                        <TextBox x:Name="NoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                 AutomationProperties.Name="Observation note"
+                                 AutomationProperties.HelpText="Optionally add a concise session-only note."
+                                 TabIndex="7" />
+                        <Button Margin="0,16,0,0" Padding="16,6" HorizontalAlignment="Left" Click="Record_Click" Content="Record observation"
+                                AutomationProperties.Name="Record observation"
+                                AutomationProperties.HelpText="Records the ordinary observation in this window's bounded session timeline."
+                                TabIndex="8" />
 
                         <Separator Margin="0,24,0,20" />
                         <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Record typed source claim for selected observation" />
@@ -71,18 +100,30 @@
                                               Text="Select a retained observation before recording a typed claim."
                                               TextWrapping="Wrap" />
                         <local:SelectableText Margin="0,16,0,4" Text="Source" />
-                        <ComboBox x:Name="ClaimSourceComboBox" SelectionChanged="ClaimSourceComboBox_SelectionChanged" />
+                        <ComboBox x:Name="ClaimSourceComboBox" SelectionChanged="ClaimSourceComboBox_SelectionChanged"
+                                  AutomationProperties.Name="Typed claim source"
+                                  AutomationProperties.HelpText="Select a typed source for the selected retained observation. Claims are session-only and no source is authoritative."
+                                  TabIndex="9" />
                         <local:SelectableText Margin="0,12,0,4" Text="Disposition" />
-                        <ComboBox x:Name="ClaimDispositionComboBox" SelectionChanged="ClaimInput_SelectionChanged" />
+                        <ComboBox x:Name="ClaimDispositionComboBox" SelectionChanged="ClaimInput_SelectionChanged"
+                                  AutomationProperties.Name="Typed claim disposition"
+                                  AutomationProperties.HelpText="Select the disposition allowed for the typed source."
+                                  TabIndex="10" />
                         <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
-                        <ComboBox x:Name="ClaimObservationStageComboBox" SelectionChanged="ClaimInput_SelectionChanged" />
+                        <ComboBox x:Name="ClaimObservationStageComboBox" SelectionChanged="ClaimInput_SelectionChanged"
+                                  AutomationProperties.Name="Typed claim observation stage"
+                                  AutomationProperties.HelpText="Select the allowed stage for the typed claim; source rules may fix this value."
+                                  TabIndex="11" />
                         <Button x:Name="RecordTypedClaimButton"
                                 Margin="0,16,0,0"
                                 Padding="16,6"
                                 HorizontalAlignment="Left"
                                 Click="RecordTypedClaim_Click"
                                 Content="Record typed claim"
-                                IsEnabled="False" />
+                                IsEnabled="False"
+                                AutomationProperties.Name="Record typed source claim"
+                                AutomationProperties.HelpText="Records only a valid typed claim for the selected retained observation; it does not select a source authority."
+                                TabIndex="12" />
 
                         <Separator Margin="0,24,0,20" />
                         <local:SelectableText FontSize="16" FontWeight="SemiBold" Text="Controlled test assistant" />
@@ -91,20 +132,41 @@
                                               Text="Prepare exactly one variable. Computer Vitals records the plan and result but never performs the action."
                                               TextWrapping="Wrap" />
                         <local:SelectableText Margin="0,16,0,4" Text="One variable" />
-                        <TextBox x:Name="ControlledVariableTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <TextBox x:Name="ControlledVariableTextBox" MaxLength="150" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Controlled test variable"
+                                 AutomationProperties.HelpText="Enter exactly one variable for a user-performed controlled test."
+                                 TabIndex="13" />
                         <local:SelectableText Margin="0,12,0,4" Text="Baseline condition" />
-                        <TextBox x:Name="ControlledBaselineTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <TextBox x:Name="ControlledBaselineTextBox" MaxLength="150" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Controlled test baseline condition"
+                                 AutomationProperties.HelpText="Enter the baseline condition to hold against the one variable."
+                                 TabIndex="14" />
                         <local:SelectableText Margin="0,12,0,4" Text="Conditions held constant" />
-                        <TextBox x:Name="ControlledConstantsTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <TextBox x:Name="ControlledConstantsTextBox" MaxLength="150" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Controlled test constant conditions"
+                                 AutomationProperties.HelpText="Enter the conditions that remain constant during the user-performed test."
+                                 TabIndex="15" />
                         <local:SelectableText Margin="0,12,0,4" Text="Action you will perform" />
-                        <TextBox x:Name="ControlledActionTextBox" MaxLength="150" TextWrapping="Wrap" />
+                        <TextBox x:Name="ControlledActionTextBox" MaxLength="150" TextWrapping="Wrap"
+                                 AutomationProperties.Name="Controlled test user-performed action"
+                                 AutomationProperties.HelpText="Describe the action you will perform; the application does not perform it."
+                                 TabIndex="16" />
                         <local:SelectableText Margin="0,12,0,4" Text="Observation stage" />
-                        <ComboBox x:Name="ControlledObservationStageComboBox" />
+                        <ComboBox x:Name="ControlledObservationStageComboBox"
+                                  AutomationProperties.Name="Controlled test observation stage"
+                                  AutomationProperties.HelpText="Select the stage where the user-performed test result will be observed."
+                                  TabIndex="17" />
                         <CheckBox x:Name="ControlledRelatedDeviceCheckBox"
                                   Margin="0,14,0,0"
                                   Content="Explicitly link the available local device"
-                                  Visibility="Collapsed" />
-                        <CheckBox x:Name="OnlyVariableWillChangeCheckBox" Margin="0,14,0,0">
+                                  Visibility="Collapsed"
+                                  AutomationProperties.Name="Explicitly link controlled-test device"
+                                  AutomationProperties.HelpText="Link only when the controlled test explicitly involves the available local device; no relationship is inferred."
+                                  TabIndex="18" />
+                        <CheckBox x:Name="OnlyVariableWillChangeCheckBox" Margin="0,14,0,0"
+                                  AutomationProperties.Name="Confirm one controlled-test variable"
+                                  AutomationProperties.HelpText="Confirm that only the named variable will change; you perform the action and the application does not."
+                                  TabIndex="19">
                             <TextBlock Text="I will intentionally change only the one variable above."
                                        TextWrapping="Wrap" />
                         </CheckBox>
@@ -113,7 +175,10 @@
                                 Padding="16,6"
                                 HorizontalAlignment="Left"
                                 Click="PrepareControlledTest_Click"
-                                Content="Prepare controlled test" />
+                                Content="Prepare controlled test"
+                                AutomationProperties.Name="Prepare one-variable controlled test"
+                                AutomationProperties.HelpText="Prepares one variable for a user-performed test; the application does not perform an action."
+                                TabIndex="20" />
                         <local:SelectableText x:Name="CurrentControlledPlanText"
                                               Margin="0,10,0,0"
                                               Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"
@@ -122,14 +187,29 @@
 
                         <StackPanel x:Name="ControlledResultPanel" IsEnabled="False">
                             <local:SelectableText Margin="0,16,0,4" Text="Observed result" />
-                            <ComboBox x:Name="ControlledOutcomeComboBox" />
+                            <ComboBox x:Name="ControlledOutcomeComboBox"
+                                      AutomationProperties.Name="Controlled test observed outcome"
+                                      AutomationProperties.HelpText="Select the observed result after you perform the controlled test."
+                                      TabIndex="21" />
                             <local:SelectableText Margin="0,12,0,4" Text="Evidence source" />
-                            <TextBox x:Name="ControlledEvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap" />
+                            <TextBox x:Name="ControlledEvidenceSourceTextBox" MaxLength="500" Text="User observation" TextWrapping="Wrap"
+                                     AutomationProperties.Name="Controlled test evidence source"
+                                     AutomationProperties.HelpText="Enter a concise source for the user-observed controlled-test result."
+                                     TabIndex="22" />
                             <local:SelectableText Margin="0,12,0,4" Text="Result note (optional)" />
-                            <TextBox x:Name="ControlledResultNoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                            <TextBox x:Name="ControlledResultNoteTextBox" MaxLength="500" AcceptsReturn="True" Height="66" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                     AutomationProperties.Name="Controlled test result note"
+                                     AutomationProperties.HelpText="Optionally add a concise session-only result note."
+                                     TabIndex="23" />
                             <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
-                                <Button Padding="16,6" Click="RecordControlledResult_Click" Content="Record result" />
-                                <Button Margin="8,0,0,0" Padding="16,6" Click="CancelControlledTest_Click" Content="Cancel test" />
+                                <Button Padding="16,6" Click="RecordControlledResult_Click" Content="Record result"
+                                        AutomationProperties.Name="Record controlled test result"
+                                        AutomationProperties.HelpText="Records the user-observed result without making a causal conclusion."
+                                        TabIndex="24" />
+                                <Button Margin="8,0,0,0" Padding="16,6" Click="CancelControlledTest_Click" Content="Cancel test"
+                                        AutomationProperties.Name="Cancel controlled test"
+                                        AutomationProperties.HelpText="Cancels the prepared controlled test without recording a result."
+                                        TabIndex="25" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -149,7 +229,16 @@
                     <ListBox x:Name="TimelineList"
                              Grid.Row="2"
                              BorderThickness="0"
-                             SelectionChanged="TimelineList_SelectionChanged">
+                             SelectionChanged="TimelineList_SelectionChanged"
+                             AutomationProperties.Name="Incident timeline entries"
+                             AutomationProperties.HelpText="Select an entry to review its qualified session evidence and source reconciliation."
+                             TabIndex="26">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="AutomationProperties.Name" Value="{Binding Headline, Mode=OneWay}" />
+                                <Setter Property="AutomationProperties.HelpText" Value="{Binding Detail, Mode=OneWay}" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type local:TimelineEntryViewItem}">
                                 <Border Margin="0,0,0,10" Padding="12" BorderThickness="1" CornerRadius="8">

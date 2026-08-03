@@ -7,10 +7,12 @@
         Title="Computer Vitals prototype"
         Icon="Assets/computer-vitals.ico"
         Width="860"
-        Height="680"
-        MinWidth="720"
-        MinHeight="660"
-        WindowStartupLocation="CenterScreen">
+         Height="680"
+         MinWidth="720"
+         MinHeight="660"
+         WindowStartupLocation="CenterScreen"
+         KeyboardNavigation.TabNavigation="Continue"
+         FocusManager.FocusedElement="{Binding ElementName=ThresholdTextBox}">
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -83,22 +85,40 @@
                 </Grid.ColumnDefinitions>
 
                 <local:SelectableText Grid.Column="0" Margin="0,0,8,0" VerticalAlignment="Center" Text="Threshold °C" />
-                <TextBox x:Name="ThresholdTextBox" Grid.Column="1" VerticalContentAlignment="Center" ToolTip="No alert is enabled until you enter a threshold." />
+                <TextBox x:Name="ThresholdTextBox" Grid.Column="1" VerticalContentAlignment="Center" ToolTip="No alert is enabled until you enter a threshold."
+                         AutomationProperties.Name="Temperature alert threshold"
+                         AutomationProperties.HelpText="Enter a temperature in degrees Celsius. This does not assert a universally safe threshold."
+                         TabIndex="0" />
                 <local:SelectableText Grid.Column="3" Margin="0,0,8,0" VerticalAlignment="Center" Text="Persist seconds" />
-                <TextBox x:Name="PersistenceTextBox" Grid.Column="4" Text="30" VerticalContentAlignment="Center" />
+                <TextBox x:Name="PersistenceTextBox" Grid.Column="4" Text="30" VerticalContentAlignment="Center"
+                         AutomationProperties.Name="Alert persistence seconds"
+                         AutomationProperties.HelpText="Enter how many seconds a threshold reading must persist before alert evaluation."
+                         TabIndex="1" />
                 <local:SelectableText Grid.Column="6" Margin="0,0,8,0" VerticalAlignment="Center" Text="Hysteresis °C" />
-                <TextBox x:Name="HysteresisTextBox" Grid.Column="7" Text="3" VerticalContentAlignment="Center" />
-                <Button Grid.Column="9" Padding="18,6" Click="ApplyAlert_Click" Content="Apply alert" />
+                <TextBox x:Name="HysteresisTextBox" Grid.Column="7" Text="3" VerticalContentAlignment="Center"
+                         AutomationProperties.Name="Alert hysteresis degrees Celsius"
+                         AutomationProperties.HelpText="Enter the degrees Celsius below the threshold required before the alert can clear."
+                         TabIndex="2" />
+                <Button Grid.Column="9" Padding="18,6" Click="ApplyAlert_Click" Content="Apply alert"
+                        AutomationProperties.Name="Apply temperature alert settings"
+                        AutomationProperties.HelpText="Applies the entered threshold, persistence, and hysteresis settings."
+                        TabIndex="3" />
             </Grid>
         </Border>
 
         <DockPanel Grid.Row="6">
-            <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh now" />
+            <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh now"
+                    AutomationProperties.Name="Refresh temperature observations"
+                    AutomationProperties.HelpText="Refreshes read-only CPU and GPU temperature observations."
+                    TabIndex="5" />
             <Button DockPanel.Dock="Right"
-                    Margin="0,0,8,0"
-                    Padding="16,6"
-                    Click="ConnectedHardware_Click"
-                    Content="Connected hardware" />
+                     Margin="0,0,8,0"
+                     Padding="16,6"
+                     Click="ConnectedHardware_Click"
+                     Content="Connected hardware"
+                     AutomationProperties.Name="Open connected hardware"
+                     AutomationProperties.HelpText="Opens the read-only local hardware inventory."
+                     TabIndex="4" />
             <StackPanel>
                 <local:SelectableText x:Name="StatusText" Text="Starting read-only sensor probe…" TextWrapping="Wrap" />
                 <local:SelectableText x:Name="NotificationStatusText"

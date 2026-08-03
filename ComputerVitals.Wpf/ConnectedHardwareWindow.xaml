@@ -7,10 +7,12 @@
         Title="Connected hardware"
         Icon="Assets/computer-vitals.ico"
         Width="980"
-        Height="680"
-        MinWidth="760"
-        MinHeight="520"
-        WindowStartupLocation="CenterOwner">
+         Height="680"
+         MinWidth="760"
+         MinHeight="520"
+         WindowStartupLocation="CenterOwner"
+         KeyboardNavigation.TabNavigation="Continue"
+         FocusManager.FocusedElement="{Binding ElementName=DeviceTree}">
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -21,26 +23,38 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0">
-            <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh inventory" />
+            <Button DockPanel.Dock="Right" Padding="16,6" Click="Refresh_Click" Content="Refresh inventory"
+                    AutomationProperties.Name="Refresh hardware inventory"
+                    AutomationProperties.HelpText="Refreshes the read-only local hardware inventory without changing hardware."
+                    TabIndex="0" />
             <Button x:Name="FocusSelectedParentButton"
                     DockPanel.Dock="Right"
                     Margin="0,0,8,0"
                     Padding="16,6"
                     Click="FocusSelectedParent_Click"
                     Content="Focus selected subtree"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed"
+                    AutomationProperties.Name="Focus selected hardware subtree"
+                    AutomationProperties.HelpText="Shows the selected parent and its reported child items; the full inventory remains available."
+                    TabIndex="1" />
             <Button x:Name="ShowAllDevicesButton"
                     DockPanel.Dock="Right"
                     Margin="0,0,8,0"
                     Padding="16,6"
                     Click="ShowAllDevices_Click"
                     Content="Show all devices"
-                    Visibility="Collapsed" />
+                    Visibility="Collapsed"
+                    AutomationProperties.Name="Show all hardware devices"
+                    AutomationProperties.HelpText="Restores the complete reported hardware inventory."
+                    TabIndex="2" />
             <Button DockPanel.Dock="Right"
                     Margin="0,0,8,0"
                     Padding="16,6"
                     Click="IncidentTimeline_Click"
-                    Content="Incident timeline" />
+                    Content="Incident timeline"
+                    AutomationProperties.Name="Open incident timeline"
+                    AutomationProperties.HelpText="Opens a session-only incident timeline and does not control hardware."
+                    TabIndex="3" />
             <StackPanel>
                 <local:SelectableText FontSize="28" FontWeight="SemiBold" Text="Connected hardware" />
                 <local:SelectableText Margin="0,6,0,0"
@@ -58,7 +72,16 @@
 
             <Border Grid.Column="0" Padding="14" BorderThickness="1" CornerRadius="10">
                 <TreeView x:Name="DeviceTree"
-                          SelectedItemChanged="DeviceTree_SelectedItemChanged">
+                          SelectedItemChanged="DeviceTree_SelectedItemChanged"
+                          AutomationProperties.Name="Connected hardware tree"
+                          AutomationProperties.HelpText="Browse reported local hardware. Selection alone does not infer a device relationship."
+                          TabIndex="4">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="AutomationProperties.Name" Value="{Binding DisplayName, Mode=OneWay}" />
+                            <Setter Property="AutomationProperties.HelpText" Value="{Binding Summary, Mode=OneWay}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type local:HardwareInventoryViewItem}" ItemsSource="{Binding Children}">
                             <StackPanel Margin="0,4">
@@ -90,7 +113,10 @@
                                 HorizontalAlignment="Left"
                                 Padding="16,6"
                                 Click="OpenOfficialSupport_Click"
-                                Visibility="Collapsed" />
+                                Visibility="Collapsed"
+                                AutomationProperties.Name="Open official support guidance"
+                                AutomationProperties.HelpText="Navigates only when explicitly invoked; it does not query, determine status, download, install, or flash firmware."
+                                TabIndex="5" />
                         <Separator Margin="0,18,0,14" />
                         <local:SelectableText x:Name="OfficialUpdateText" TextWrapping="Wrap" />
                         <Button x:Name="OpenOfficialUpdateButton"
@@ -98,7 +124,10 @@
                                 HorizontalAlignment="Left"
                                 Padding="16,6"
                                 Click="OpenOfficialUpdate_Click"
-                                Visibility="Collapsed" />
+                                Visibility="Collapsed"
+                                AutomationProperties.Name="Open official vendor guidance"
+                                AutomationProperties.HelpText="Navigates only when explicitly invoked; it does not query, determine status, download, install, or flash firmware."
+                                TabIndex="6" />
                     </StackPanel>
                 </ScrollViewer>
             </Border>
