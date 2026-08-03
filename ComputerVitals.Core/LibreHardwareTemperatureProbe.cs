@@ -2,6 +2,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 using LibreHardwareMonitor.Hardware;
+using LibreHardwareMonitor.PawnIo;
 
 namespace ComputerVitals.Core;
 
@@ -81,6 +82,12 @@ public sealed class LibreHardwareTemperatureProbe : ITemperatureProbe, IDisposab
 
         if (source.Sensor is null)
         {
+            string reason = deviceKind == TemperatureDeviceKind.Cpu
+                ? CpuTemperatureAccessDiagnostic.ExplainNoReadableSource(
+                    devices.Any(IsAmdCpu),
+                    PawnIo.IsInstalled)
+                : "No readable temperature source is available. Required low-level access may be unavailable.";
+
             return new TemperatureProbeResult(
                 deviceKind,
                 devices[0].Name,
@@ -88,7 +95,7 @@ public sealed class LibreHardwareTemperatureProbe : ITemperatureProbe, IDisposab
                 null,
                 observedAt,
                 true,
-                "No readable temperature source is available. Required low-level access may be unavailable.");
+                reason);
         }
 
         float? value = source.Sensor.Value is float reading && float.IsFinite(reading) ? reading : null;
@@ -114,6 +121,9 @@ public sealed class LibreHardwareTemperatureProbe : ITemperatureProbe, IDisposab
 
     private static bool IsGpu(IHardware hardware) => hardware.HardwareType is
         HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel;
+
+    private static bool IsAmdCpu(IHardware hardware) =>
+        hardware.Identifier.ToString().StartsWith("/amdcpu/", StringComparison.OrdinalIgnoreCase);
 
     private static IEnumerable<IHardware> EnumerateHardware(IEnumerable<IHardware> roots)
     {
