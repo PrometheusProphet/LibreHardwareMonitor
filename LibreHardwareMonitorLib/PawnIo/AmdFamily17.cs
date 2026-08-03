@@ -4,6 +4,8 @@ public class AmdFamily17
 {
     private readonly PawnIo _pawnIo = PawnIo.LoadModuleFromResource(typeof(AmdFamily0F).Assembly, $"{nameof(LibreHardwareMonitor)}.Resources.PawnIo.AMDFamily17.bin");
 
+    public bool IsAvailable => _pawnIo.IsLoaded;
+
     public uint ReadSmn(uint offset)
     {
         long[] result = _pawnIo.Execute("ioctl_read_smn", [offset], 1);
