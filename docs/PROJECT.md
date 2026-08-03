@@ -301,10 +301,10 @@ evidence remains open.**
 
 The selected [developer-preview posture](release/DEVELOPER-PREVIEW.md) is an
 unsigned, unpackaged, local `win-x64` self-contained .NET publish evaluation
-only. The dated [local win-x64 publish availability](release/2026-08-03-local-win-x64-publish-availability.md)
-records the profile facts, a Core-only Release x64 75-of-75 test result, and
-that no-restore WPF publish is unavailable with the locally restored assets.
-Expected startup, sensor-refresh, notification, and inventory-operation
+only. The dated [local win-x64 publish availability and evidence](release/2026-08-03-local-win-x64-publish-availability.md)
+records the existing profile, authorized local restore, full Release x64
+build/test, fresh ignored-output manifest, and unsigned primary executable
+status. Expected startup, sensor-refresh, notification, and inventory-operation
 failures now have fixed local presentation that keeps unavailable data and
 partial driver evidence explicit. It is not a release candidate or a
 release-completion claim. Unexpected process crashes, restart and recovery,
