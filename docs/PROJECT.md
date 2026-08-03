@@ -163,7 +163,10 @@ The first temperature-prototype milestone includes the completed fork
 foundation plus a WPF CPU/GPU temperature view, explicit unavailable and
 unsupported states, bounded session history, threshold persistence and
 hysteresis, local-notification registration, a self-contained .NET publish
-profile, and a read-only AMD CPU-access diagnostic. It does not claim broad
+profile, and a read-only AMD CPU-access diagnostic. The active connected-
+hardware slice adds local parent-child inventory, installed signed-driver
+evidence, explicit unknown firmware status, and an official Dell support link
+only for an exact `Dell Dock WD19S` display-name match. It does not claim broad
 hardware compatibility, durable update availability, release readiness, or
 successful notification delivery on every machine. Real notification delivery
 and CPU temperature access with PawnIO installed remain targeted hardware

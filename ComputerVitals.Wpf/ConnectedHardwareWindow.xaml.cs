@@ -2,6 +2,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 using System.Text;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using ComputerVitals.Core;
@@ -35,6 +36,7 @@ public partial class ConnectedHardwareWindow : Window
             DetailsTitle.Text = "Select a component";
             DetailsRole.Text = string.Empty;
             DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
+            SetOfficialSupportGuidance(null);
             StatusText.Text = $"Read-only inventory refreshed: {snapshot.ObservedAt.ToLocalTime():T}. {snapshot.Items.Count} Windows-reported components.";
             EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
         }
@@ -44,6 +46,7 @@ public partial class ConnectedHardwareWindow : Window
             DetailsTitle.Text = "Inventory unavailable";
             DetailsRole.Text = string.Empty;
             DetailsText.Text = "No inventory result is presented because the read failed.";
+            SetOfficialSupportGuidance(null);
             StatusText.Text = $"Read-only inventory failed: {exception.Message}";
             EvidenceText.Text = string.Empty;
         }
@@ -61,6 +64,38 @@ public partial class ConnectedHardwareWindow : Window
         DetailsTitle.Text = item.DisplayName;
         DetailsRole.Text = item.Role;
         DetailsText.Text = Describe(item.Item);
+        SetOfficialSupportGuidance(OfficialSupportGuidanceResolver.Resolve(item.Item));
+    }
+
+    private void SetOfficialSupportGuidance(OfficialSupportGuidance? guidance)
+    {
+        if (guidance is null)
+        {
+            OfficialSupportText.Text = "Official support guidance: no link is shown because a reliable manufacturer-and-model match has not been established. Update availability is unknown.";
+            OpenOfficialSupportButton.Tag = null;
+            OpenOfficialSupportButton.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        OfficialSupportText.Text = $"Official support guidance: {guidance.Title}\n{guidance.MatchReason}\n{guidance.SupportUri}\n{guidance.Evidence.Note}";
+        OpenOfficialSupportButton.Content = $"Open {guidance.Provider} support";
+        OpenOfficialSupportButton.Tag = guidance.SupportUri;
+        OpenOfficialSupportButton.Visibility = Visibility.Visible;
+    }
+
+    private void OpenOfficialSupport_Click(object sender, RoutedEventArgs e)
+    {
+        if (OpenOfficialSupportButton.Tag is not Uri supportUri)
+            return;
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(supportUri.AbsoluteUri) { UseShellExecute = true });
+        }
+        catch (Exception exception)
+        {
+            StatusText.Text = $"Official support could not be opened: {exception.Message}";
+        }
     }
 
     private static string Describe(HardwareInventoryItem item)
