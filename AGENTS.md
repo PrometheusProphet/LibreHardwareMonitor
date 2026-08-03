@@ -90,4 +90,15 @@ to prove that prose rules exist.
 - A completed change reports its result, checks, delivery state, blockers, and
   residual uncertainty. Do not overstate hardware coverage, visual acceptance,
   verification, commit, publication, or upstream compatibility.
-- Commit and push only when the current request includes that delivery step.
+- For authorized implementation, default Git delivery is to stage only the
+  task-owned changes, commit them, and push them once there is no evident
+  safety, authority, secret, or dirty-work conflict. Do not wait for review,
+  visual acceptance, or a merge vehicle before ordinary delivery.
+- Failed, unavailable, or omitted non-destructive proof must be reported
+  truthfully, but ordinarily does not postpone commit and push; resolve
+  ordinary source defects afterward. Explicit delivery deferral, a required
+  acceptance gate, unsafe scope, or an inability to isolate task-owned changes
+  remains a reason to stop.
+- A pull request is not a default delivery gate. Use one only when the current
+  request or an accepted contract calls for it, and never treat its review as a
+  prerequisite to committing and pushing.
