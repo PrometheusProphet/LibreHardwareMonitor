@@ -50,6 +50,29 @@ public sealed class SessionDiagnosticEvidenceClaimLedgerTests
     }
 
     [TestMethod]
+    public void Record_AtCapacityThirtyEvictsAndPrunesBeforeReusingOnlyTheOldestKey()
+    {
+        SessionDiagnosticTimeline timeline = new(capacity: SessionDiagnosticTimeline.MaximumCapacity);
+        SessionDiagnosticEvidenceClaimLedger ledger = new(timeline);
+        DiagnosticTimelineEntry oldest = timeline.Record(Entry(Now));
+        ledger.Record(Claim(oldest.ObservationKey));
+        for (int offset = 1; offset < SessionDiagnosticTimeline.MaximumCapacity; offset++)
+            timeline.Record(Entry(Now.AddMinutes(offset)));
+
+        DiagnosticTimelineEntry replacement = timeline.Record(Entry(Now.AddMinutes(SessionDiagnosticTimeline.MaximumCapacity)));
+
+        Assert.HasCount(SessionDiagnosticTimeline.MaximumCapacity, timeline.Entries);
+        Assert.IsFalse(timeline.Entries.Contains(oldest));
+        Assert.IsTrue(timeline.Entries.Contains(replacement));
+        Assert.AreEqual(oldest.ObservationKey, replacement.ObservationKey);
+        Assert.AreEqual(
+            SessionDiagnosticTimeline.MaximumCapacity,
+            timeline.Entries.Select(entry => entry.ObservationKey).Distinct().Count());
+        Assert.AreEqual(Now.AddMinutes(1), timeline.Entries[^1].ObservedAt);
+        Assert.IsEmpty(ledger.Claims);
+    }
+
+    [TestMethod]
     public void Record_RetainsAtMostThirtyClaimsWithinOneLedgerInstance()
     {
         SessionDiagnosticTimeline timeline = new(capacity: 1);

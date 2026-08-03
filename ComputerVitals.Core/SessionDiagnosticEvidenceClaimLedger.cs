@@ -13,6 +13,7 @@ public sealed class SessionDiagnosticEvidenceClaimLedger
     {
         ArgumentNullException.ThrowIfNull(timeline);
         _timeline = timeline;
+        _timeline.EntryEvicted += _ => PruneInactive();
     }
 
     public IReadOnlyList<LocalDiagnosticEvidenceClaim> Claims

@@ -65,13 +65,16 @@ public sealed class SessionDiagnosticTimelineTests
         SessionDiagnosticTimeline timeline = new(capacity: 2);
         DiagnosticTimelineEntry first = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(1)));
         DiagnosticTimelineEntry second = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(3)));
-        timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(2)));
+        DiagnosticTimelineEntry third = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(2)));
 
-        Assert.IsFalse(timeline.IsRetainedObservationKey(first.ObservationKey));
-        Assert.IsTrue(timeline.IsRetainedObservationKey(second.ObservationKey));
+        Assert.IsFalse(timeline.Entries.Contains(first));
+        Assert.IsTrue(timeline.Entries.Contains(second));
+        Assert.IsTrue(timeline.Entries.Contains(third));
+        Assert.AreEqual(first.ObservationKey, third.ObservationKey);
+        Assert.AreEqual(2, timeline.Entries.Select(entry => entry.ObservationKey).Distinct().Count());
 
         DiagnosticTimelineEntry replacement = timeline.Record(Entry(DateTimeOffset.UnixEpoch.AddMinutes(4)));
-        Assert.AreEqual(first.ObservationKey, replacement.ObservationKey);
+        Assert.AreEqual(third.ObservationKey, replacement.ObservationKey);
     }
 
     private static DiagnosticTimelineEntry Entry(

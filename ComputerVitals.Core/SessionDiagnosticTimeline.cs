@@ -24,6 +24,8 @@ public sealed class SessionDiagnosticTimeline
 
     public IReadOnlyList<DiagnosticTimelineEntry> Entries => _entries;
 
+    public event Action<DiagnosticTimelineEntry>? EntryEvicted;
+
     public DiagnosticTimelineEntry Record(DiagnosticTimelineEntry entry)
     {
         ArgumentNullException.ThrowIfNull(entry);
@@ -54,11 +56,23 @@ public sealed class SessionDiagnosticTimeline
                 nameof(entry));
         }
 
+        if (_entries.Count == _capacity)
+        {
+            DiagnosticTimelineEntry oldestEntry = _entries[^1];
+            if (entry.ObservedAt <= oldestEntry.ObservedAt)
+                return entry;
+
+            _entries.RemoveAt(_entries.Count - 1);
+            EntryEvicted?.Invoke(oldestEntry);
+            DiagnosticTimelineEntry replacementEntry = entry with { ObservationKey = oldestEntry.ObservationKey };
+            _entries.Add(replacementEntry);
+            _entries.Sort((left, right) => right.ObservedAt.CompareTo(left.ObservedAt));
+            return replacementEntry;
+        }
+
         DiagnosticTimelineEntry retainedEntry = entry with { ObservationKey = AllocateObservationKey() };
         _entries.Add(retainedEntry);
         _entries.Sort((left, right) => right.ObservedAt.CompareTo(left.ObservedAt));
-        while (_entries.Count > _capacity)
-            _entries.RemoveAt(_entries.Count - 1);
         return retainedEntry;
     }
 
