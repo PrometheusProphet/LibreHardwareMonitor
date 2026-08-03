@@ -36,7 +36,7 @@ public partial class ConnectedHardwareWindow : Window
             DetailsRole.Text = string.Empty;
             DetailsText.Text = "Installed driver information is local Windows evidence. Firmware fields remain unknown unless this source exposes them.";
             StatusText.Text = $"Read-only inventory refreshed: {snapshot.ObservedAt.ToLocalTime():T}. {snapshot.Items.Count} Windows-reported components.";
-            EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.IdentityEvidence.Source}.";
+            EvidenceText.Text = snapshot.Reason ?? $"Identity source: {snapshot.Evidence.Source}.";
         }
         catch (Exception exception)
         {

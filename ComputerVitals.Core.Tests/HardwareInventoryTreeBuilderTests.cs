@@ -20,7 +20,7 @@ public sealed class HardwareInventoryTreeBuilderTests
 
         Assert.HasCount(1, roots);
         Assert.AreEqual("Dell WD19S", roots[0].Item.DisplayName);
-        CollectionAssert.AreEquivalent(["MST controller", "USB hub"], roots[0].Children.Select(child => child.Item.DisplayName).ToArray());
+        CollectionAssert.AreEquivalent(new[] { "MST controller", "USB hub" }, roots[0].Children.Select(child => child.Item.DisplayName).ToArray());
     }
 
     [TestMethod]

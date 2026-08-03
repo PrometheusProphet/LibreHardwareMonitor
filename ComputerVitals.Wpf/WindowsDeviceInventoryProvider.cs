@@ -86,7 +86,9 @@ public sealed class WindowsDeviceInventoryProvider : IHardwareInventoryProbe
         }
         catch (Exception exception)
         {
-            return new DriverInventoryResult([], $"Windows signed-driver inventory could not be read: {exception.Message}");
+            return new DriverInventoryResult(
+                new Dictionary<string, DriverRecord>(StringComparer.OrdinalIgnoreCase),
+                $"Windows signed-driver inventory could not be read: {exception.Message}");
         }
     }
 
