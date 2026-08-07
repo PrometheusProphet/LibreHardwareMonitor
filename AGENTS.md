@@ -1,106 +1,26 @@
 # Computer Vitals Fork Router
 
-This repository is a fork of Libre Hardware Monitor and the source foundation
-for a small, local-first Windows diagnostics application. Keep its governance
-smaller than the product.
+This is the Computer Vitals fork of Libre Hardware Monitor: a local-first Windows
+diagnostics foundation. `docs/PROJECT.md` owns accepted product direction,
+enduring safety/fork boundaries, current scope, and deliberate deferrals.
+Current source and Git state define implementation truth; Computer Vitals is a
+working technical name, not accepted branding.
 
-## Authority and ownership
+`origin` is the product fork and `upstream` is read-only official Libre Hardware
+Monitor. Preserve history, `LICENSE`, notices, attribution, and source-file
+obligations; keep upstream sensor fixes separable from product UI/alert work.
+Record source revision, license, local changes, and update strategy before
+adapting external code.
 
-- The user's current request controls the task.
-- `docs/PROJECT.md` owns accepted product direction, enduring safety and fork
-  boundaries, current scope, and intentionally deferred decisions.
-- Current source and Git state override plans, prompts, earlier reviews, and
-  the non-normative governance derivation record.
-- The inherited `LibreHardwareMonitorLib` and Windows Forms source are the
-  current sensor-engine and prototype baseline, not permanent UI authority.
-- Computer Vitals is a working technical name, not accepted branding.
-- Do not silently settle a deferred decision when it materially changes
-  licensing, privilege, packaging, architecture, data handling, or behavior.
+Hardware interaction is read-only unless an exact request authorizes a named
+control feature. Sensor values remain fallible: show missing, unsupported, stale,
+contradictory, and failed readings honestly. Prefer device limits, persistence,
+and hysteresis; never let learned baselines suppress an absolute critical state.
+Privilege, services, and drivers require a named capability justification.
 
-## Fork and license discipline
-
-- `origin` is the product fork. `upstream` is the official Libre Hardware
-  Monitor repository and is read-only for this project.
-- Preserve upstream Git history, `LICENSE`, third-party notices, attribution,
-  and source-file obligations. Do not imply that fork-specific behavior is an
-  upstream feature.
-- Keep sensor-engine fixes separable from product-specific UI and alert work
-  when practical so upstream intake and possible contribution remain clear.
-- Review upstream changes before integration. Never discard product changes or
-  resolve a behavioral conflict by automatically preferring upstream.
-- Before copying or adapting source from anywhere else, record its origin,
-  revision, license, local changes, and update strategy next to the import.
-
-## Safety and truthful diagnostics
-
-- Keep product hardware interaction read-only unless the current request
-  explicitly authorizes a named control feature and its failure behavior.
-- Treat every sensor value as fallible input. Missing, unsupported, stale,
-  contradictory, or failed readings must remain visible; never replace them
-  with invented healthy values.
-- Do not claim that a threshold is universally safe. Prefer device-reported
-  limits and document any fallback.
-- Require persistence and hysteresis for ordinary alerts. Learned baselines may
-  add context but must never suppress an absolute critical condition.
-- Use least privilege. Administrator access, a service, or a low-level driver
-  must be justified by the exact sensor capability that needs it.
-- Never commit secrets, signing material, raw machine identifiers, personal
-  sensor history, crash dumps, or unrelated private data. Tests use synthetic
-  fixtures.
-
-## Changes and external actions
-
-- Inspect the owning source and current Git state before editing. Preserve
-  unrelated work.
-- Diagnosis authorizes investigation and reporting, not implementation, unless
-  the request also asks for a fix.
-- Adding telemetry, accounts, cloud storage, remote access, automatic hardware
-  control, publishing, signing, package release, or another external mutation
-  requires explicit current authority.
-- Prefer adapters at product boundaries over invasive sensor-library changes.
-  Modify the library when the capability or correctness fix genuinely belongs
-  there.
-
-## Proportional proof
-
-Use the smallest evidence that can establish the claimed result:
-
-1. Documentation or repository metadata: inspect the owning documents and run
-   whitespace, link, or equivalent focused checks.
-2. Pure alert or presentation logic: run focused unit tests for the changed
-   owner.
-3. Sensor or operating-system adapter: run contract tests with synthetic input,
-   then a named hardware check when the claim depends on real hardware.
-4. Privilege, persistence, installer, alert delivery, or cross-owner change:
-   run affected integration checks.
-5. Release, upstream integration, or broad shared-boundary change: run the full
-   repository build and test gate.
-
-Report unavailable hardware evidence honestly. Do not add a validator merely
-to prove that prose rules exist.
-
-## Rule maintenance and completion
-
-- Change repository rules only for a concrete miss, ambiguity, unsafe default,
-  changed enduring boundary, or explicit user decision.
-- Put the rule in one normative owner, choose the smallest behavior that
-  prevents the problem, and remove superseded wording.
-- Ordinary work stays in one task and one coherent change. Add coordination or
-  durable process machinery only after a demonstrated need.
-- A completed change reports its result, checks, delivery state, blockers, and
-  residual uncertainty. Do not overstate hardware coverage, visual acceptance,
-  verification, commit, publication, or upstream compatibility.
-- For authorized implementation, default Git delivery is to stage only the
-  task-owned changes, commit them, and push them once there is no evident
-  safety, authority, secret, or dirty-work conflict. Do not wait for review,
-  visual acceptance, or a merge vehicle before ordinary delivery.
-- Failed, unavailable, or omitted proof must be reported truthfully. A clearly
-  labeled local evidence or failed-experiment commit may preserve useful work,
-  but unresolved required proof blocks a verified completion claim and remote
-  delivery. Diagnose and correct ordinary source defects in the same authorized
-  task, rerun the smallest decisive proof, and then continue delivery. Explicit
-  delivery deferral, unsafe scope, or inability to isolate task-owned changes
-  remains a reason to stop.
-- A pull request is not a default delivery gate. Use one only when the current
-  request or an accepted contract calls for it, and never treat its review as a
-  prerequisite to committing and pushing.
+Use the product proof ladder: docs get focused document checks; pure logic gets
+unit proof; adapters get synthetic contract tests then named hardware evidence;
+privilege/persistence/installer/cross-owner changes get affected integration;
+release or upstream integration gets the full gate. Report absent hardware
+evidence. Push only the existing `origin` product branch when the fork delivery
+owner permits it; never push `upstream`.
