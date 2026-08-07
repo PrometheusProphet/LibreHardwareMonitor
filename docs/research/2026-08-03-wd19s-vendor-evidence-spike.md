@@ -4,7 +4,9 @@ Date: 2026-08-03
 
 Status: non-normative research artifact
 
-Decision owner: `docs/PROJECT.md`
+Product-consequence owner: `docs/PROJECT.md`
+
+Current roadmap-disposition owner: `docs/ROADMAP.md`
 
 ## Scope and conclusion
 
@@ -21,6 +23,32 @@ reuse. More importantly, the current local provider has neither a reliable
 WD19S package/component identity nor comparable installed firmware versions.
 The next safe work is limited to permission/schema confirmation and synthetic
 fixture design. `UpdateAvailabilityStatus.Unknown` must remain unchanged.
+
+## Incident evidence motivating the spike
+
+With a Dell WD19S dock attached, repeated Windows restarts completed shutdown
+but stalled at the ASRock logo during POST; shutdown followed by a cold start
+worked. The first successful restart occurred with the dock disconnected,
+strongly associating the dock and host interaction with the failure condition
+before Windows started.
+
+The AMD chipset package was updated from 8.03.25.247 to 8.07.16.1035. Four
+outdated WD19S components were also updated: the MST controller, two USB hubs,
+and embedded controller. After the dock was power-cycled and reconnected, a
+restart with the dock attached succeeded. This is observed successful
+remediation, not proof that any one update was the root cause, because the
+chipset and dock changes were applied before the final test. A future naturally
+occurring successful restart would increase confidence that the result is
+durable.
+
+The incident also exposed contradictory evidence. An AMD summary labeled two
+components as failed while the detailed Windows Installer log reported success
+status codes and Device Manager showed no AMD device errors. Composite and
+hidden devices also mattered: Windows exposed the dock as several child USB
+components, including a Realtek USB Ethernet device with no Ethernet cable
+connected. These observations motivate the product's enduring rules for source
+scope, recency, conflicts, composite devices, and qualified causal language;
+they do not establish a verified update verdict.
 
 ## Official source suitability and terms
 

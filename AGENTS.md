@@ -1,8 +1,9 @@
 # Computer Vitals Fork Router
 
 This is the Computer Vitals fork of Libre Hardware Monitor: a local-first Windows
-diagnostics foundation. `docs/PROJECT.md` owns accepted product direction,
-enduring safety/fork boundaries, current scope, and deliberate deferrals.
+diagnostics foundation. `docs/PROJECT.md` owns stable product direction and
+enduring safety, fork, and deferred-decision boundaries. `docs/ROADMAP.md` owns
+mutable implementation, milestone, roadmap, and current-prototype state.
 Current source and Git state define implementation truth; Computer Vitals is a
 working technical name, not accepted branding.
 
