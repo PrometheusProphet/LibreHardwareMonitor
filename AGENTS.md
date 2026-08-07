@@ -94,10 +94,12 @@ to prove that prose rules exist.
   task-owned changes, commit them, and push them once there is no evident
   safety, authority, secret, or dirty-work conflict. Do not wait for review,
   visual acceptance, or a merge vehicle before ordinary delivery.
-- Failed, unavailable, or omitted non-destructive proof must be reported
-  truthfully, but ordinarily does not postpone commit and push; resolve
-  ordinary source defects afterward. Explicit delivery deferral, a required
-  acceptance gate, unsafe scope, or an inability to isolate task-owned changes
+- Failed, unavailable, or omitted proof must be reported truthfully. A clearly
+  labeled local evidence or failed-experiment commit may preserve useful work,
+  but unresolved required proof blocks a verified completion claim and remote
+  delivery. Diagnose and correct ordinary source defects in the same authorized
+  task, rerun the smallest decisive proof, and then continue delivery. Explicit
+  delivery deferral, unsafe scope, or inability to isolate task-owned changes
   remains a reason to stop.
 - A pull request is not a default delivery gate. Use one only when the current
   request or an accepted contract calls for it, and never treat its review as a
