@@ -3,8 +3,9 @@
 Status: non-normative design evidence
 
 This fork uses Workflow Optimizer as a framework source to compile down, not as
-a policy bundle to copy. Normative rules live only in `AGENTS.md` and
-`docs/PROJECT.md`.
+a policy bundle to copy. Normative rules live in `AGENTS.md` and
+`docs/PROJECT.md`; the latter delegates mutable implementation, milestone,
+roadmap, and prototype state to `docs/ROADMAP.md`.
 
 ## Sources inspected
 
