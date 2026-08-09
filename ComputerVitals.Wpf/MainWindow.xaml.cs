@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private LibreHardwareTemperatureProbe? _probe;
     private TemperatureMonitor? _monitor;
     private TemperatureAlertEvaluator? _alertEvaluator;
+    private IReadOnlyList<TemperatureSample> _latestTemperatureSamples = [];
     private bool _refreshing;
 
     public MainWindow(WindowsAppNotificationService notifications, string notificationStatus)
@@ -41,9 +42,21 @@ public partial class MainWindow : Window
             _timer.Start();
             await RefreshAsync();
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            StatusText.Text = $"Sensor probe unavailable: {exception.Message}";
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (InvalidOperationException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (DllNotFoundException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
+        }
+        catch (BadImageFormatException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorInitialization);
         }
     }
 
@@ -54,6 +67,9 @@ public partial class MainWindow : Window
     }
 
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
+
+    private void ConnectedHardware_Click(object sender, RoutedEventArgs e) =>
+        new ConnectedHardwareWindow(_latestTemperatureSamples.ToArray()) { Owner = this }.Show();
 
     private void ApplyAlert_Click(object sender, RoutedEventArgs e)
     {
@@ -92,19 +108,32 @@ public partial class MainWindow : Window
         try
         {
             IReadOnlyList<TemperatureSample> samples = await Task.Run(() => _monitor.Refresh(DateTimeOffset.UtcNow));
+            _latestTemperatureSamples = samples.ToArray();
             foreach (TemperatureSample sample in samples)
             {
                 UpdateCard(sample);
                 TemperatureAlert? alert = _alertEvaluator?.Evaluate(sample);
-                if (alert is not null)
-                    _notifications.Show(alert);
+                if (alert is not null && _notifications.Show(alert) is ExpectedFailurePresentation notificationFailure)
+                    NotificationStatusText.Text = notificationFailure.Detail;
             }
 
             StatusText.Text = $"Last read-only refresh: {DateTimeOffset.Now:T}. Session history is kept only while this window is open.";
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            StatusText.Text = $"Refresh failed; previous values are not presented as current: {exception.Message}";
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (InvalidOperationException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (DllNotFoundException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
+        }
+        catch (BadImageFormatException)
+        {
+            PresentTemperatureFailure(ExpectedFailureKind.SensorRefresh);
         }
         finally
         {
@@ -116,13 +145,13 @@ public partial class MainWindow : Window
     {
         bool cpu = sample.DeviceKind == TemperatureDeviceKind.Cpu;
         Border card = cpu ? CpuCard : GpuCard;
-        TextBlock state = cpu ? CpuStateText : GpuStateText;
-        TextBlock value = cpu ? CpuValueText : GpuValueText;
-        TextBlock name = cpu ? CpuNameText : GpuNameText;
-        TextBlock source = cpu ? CpuSourceText : GpuSourceText;
-        TextBlock range = cpu ? CpuRangeText : GpuRangeText;
-        TextBlock freshness = cpu ? CpuFreshnessText : GpuFreshnessText;
-        TextBlock reason = cpu ? CpuReasonText : GpuReasonText;
+        SelectableText state = cpu ? CpuStateText : GpuStateText;
+        SelectableText value = cpu ? CpuValueText : GpuValueText;
+        SelectableText name = cpu ? CpuNameText : GpuNameText;
+        SelectableText source = cpu ? CpuSourceText : GpuSourceText;
+        SelectableText range = cpu ? CpuRangeText : GpuRangeText;
+        SelectableText freshness = cpu ? CpuFreshnessText : GpuFreshnessText;
+        SelectableText reason = cpu ? CpuReasonText : GpuReasonText;
 
         state.Text = sample.State.ToString();
         value.Text = sample.ValueCelsius is float current ? $"{current:F1} °C" : "—";
@@ -142,5 +171,42 @@ public partial class MainWindow : Window
             TemperatureSampleState.Unavailable => Brushes.IndianRed,
             _ => Brushes.Gray
         };
+    }
+
+    private void PresentTemperatureFailure(ExpectedFailureKind kind)
+    {
+        ExpectedFailurePresentation presentation = ExpectedFailurePresentationPolicy.For(kind);
+        _latestTemperatureSamples = [];
+        if (presentation.Disposition == ExpectedFailureDisposition.StopTemperatureMonitoring)
+        {
+            _timer.Stop();
+            _monitor = null;
+            _probe?.Dispose();
+            _probe = null;
+        }
+        StatusText.Text = presentation.Headline;
+        PresentUnavailableTemperatureCard(CpuCard, CpuStateText, CpuValueText, CpuNameText, CpuSourceText, CpuRangeText, CpuFreshnessText, CpuReasonText, presentation.Detail);
+        PresentUnavailableTemperatureCard(GpuCard, GpuStateText, GpuValueText, GpuNameText, GpuSourceText, GpuRangeText, GpuFreshnessText, GpuReasonText, presentation.Detail);
+    }
+
+    private static void PresentUnavailableTemperatureCard(
+        Border card,
+        SelectableText state,
+        SelectableText value,
+        SelectableText name,
+        SelectableText source,
+        SelectableText range,
+        SelectableText freshness,
+        SelectableText reason,
+        string detail)
+    {
+        state.Text = "Unavailable";
+        value.Text = "—";
+        name.Text = string.Empty;
+        source.Text = string.Empty;
+        range.Text = string.Empty;
+        freshness.Text = string.Empty;
+        reason.Text = detail;
+        card.BorderBrush = Brushes.IndianRed;
     }
 }

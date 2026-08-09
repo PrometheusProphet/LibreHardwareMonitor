@@ -22,24 +22,48 @@ public sealed class WindowsAppNotificationService : IDisposable
             _registered = true;
             return "Local Windows notifications are available. No alert is enabled until you configure a threshold.";
         }
-        catch (Exception exception)
+        catch (UnauthorizedAccessException)
         {
-            AppNotificationManager.Default.NotificationInvoked -= OnNotificationInvoked;
-            return $"Local Windows notifications are unavailable: {exception.Message}";
+            return PresentRegistrationFailure().Detail;
+        }
+        catch (InvalidOperationException)
+        {
+            return PresentRegistrationFailure().Detail;
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            return PresentRegistrationFailure().Detail;
         }
     }
 
-    public void Show(TemperatureAlert alert)
+    public ExpectedFailurePresentation? Show(TemperatureAlert alert)
     {
         if (!_registered)
-            return;
+            return ExpectedFailurePresentationPolicy.For(ExpectedFailureKind.NotificationDelivery);
 
-        AppNotification notification = new AppNotificationBuilder()
-            .AddArgument("action", "show-temperature")
-            .AddText($"{alert.DeviceKind} temperature remained above your threshold")
-            .AddText($"{alert.DeviceName} · {alert.SensorName ?? "temperature source"}: {alert.ValueCelsius:F1} °C (threshold {alert.ThresholdCelsius:F1} °C for {alert.Persistence.TotalSeconds:F0} seconds)")
-            .BuildNotification();
-        AppNotificationManager.Default.Show(notification);
+        try
+        {
+            TemperatureAlertNotificationContent content = TemperatureAlertNotificationContent.FromAlert(alert);
+            AppNotification notification = new AppNotificationBuilder()
+                .AddArgument("action", "show-temperature")
+                .AddText(content.Title)
+                .AddText(content.Body)
+                .BuildNotification();
+            AppNotificationManager.Default.Show(notification);
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return PresentDeliveryFailure();
+        }
+        catch (InvalidOperationException)
+        {
+            return PresentDeliveryFailure();
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            return PresentDeliveryFailure();
+        }
     }
 
     public void Dispose()
@@ -54,4 +78,17 @@ public sealed class WindowsAppNotificationService : IDisposable
 
     private void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args) =>
         Activated?.Invoke(this, EventArgs.Empty);
+
+    private ExpectedFailurePresentation PresentRegistrationFailure()
+    {
+        AppNotificationManager.Default.NotificationInvoked -= OnNotificationInvoked;
+        _registered = false;
+        return ExpectedFailurePresentationPolicy.For(ExpectedFailureKind.NotificationRegistration);
+    }
+
+    private ExpectedFailurePresentation PresentDeliveryFailure()
+    {
+        _registered = false;
+        return ExpectedFailurePresentationPolicy.For(ExpectedFailureKind.NotificationDelivery);
+    }
 }

@@ -1,0 +1,16 @@
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+namespace ComputerVitals.Core;
+
+public sealed record DiagnosticTimelineEntry(
+    DateTimeOffset ObservedAt,
+    string Condition,
+    string Action,
+    DiagnosticOutcome Outcome,
+    string EvidenceSource,
+    DiagnosticConclusion Conclusion,
+    string? Note = null,
+    DiagnosticObservationStage ObservationStage = DiagnosticObservationStage.Unknown,
+    DiagnosticDeviceReference? RelatedDevice = null,
+    LocalDiagnosticEvidenceObservationKey ObservationKey = LocalDiagnosticEvidenceObservationKey.Unknown);
